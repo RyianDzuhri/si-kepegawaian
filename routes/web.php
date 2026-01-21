@@ -9,4 +9,4 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [SwitchPage::class, 'showPage'])->name('dashboard');
 
-Route::get('/manajemen-pegawai', [App\Http\Controllers\ManajemenPegawaiController::class, 'index'])->name('manajemen-pegawai');
+Route::get('/manajemen-pegawai', [App\Http\Controllers\Pegawai\ManajemenPegawaiController::class, 'index'])->name('manajemen-pegawai');

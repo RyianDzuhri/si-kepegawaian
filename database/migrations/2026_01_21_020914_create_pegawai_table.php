@@ -23,9 +23,6 @@ return new class extends Migration
         $table->string('jenis_pegawai');
         $table->string('golongan')->nullable();
         $table->string('pendidikan_terakhir');
-
-        // --- TAMBAHAN UNTUK FITUR NOTIFIKASI ---
-        // Agar sistem tahu kapan kenaikan berikutnya, kita simpan tanggal terakhirnya
         $table->date('tmt_pangkat_terakhir')->nullable(); // Acuan notif Kenaikan Pangkat
         $table->date('tmt_gaji_berkala_terakhir')->nullable(); // Acuan notif Gaji Berkala
 
