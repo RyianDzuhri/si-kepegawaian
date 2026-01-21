@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\View\View;
 
-class SwitchPage extends Model
+class SwitchPage extends Controller
 {
     public function showPage(): View
     {
-        return view('master');
+        return view('layout.master');
     }
 }

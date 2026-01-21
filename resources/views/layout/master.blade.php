@@ -63,14 +63,12 @@
             <ul>
                 <li><a href="#home">Lihat Pemberitahuan</a></li>
                 <li><a href="#about">Upload SK</a></li>
-                <li><a href="#services">Manajemen Data Pegawai</a></li>
+                <li><a href="{{ route('manajemen-pegawai') }}">Manajemen Data Pegawai</a></li>
             </ul>
         </aside>
         
         <main class="main-content">
-            <h1>Main Content Area</h1>
-            <p>This is the main content of the page. The sidebar is on the left.</p>
-            <!-- Add more content here to test scrolling -->
+            @yield('content')
         </main>
     </div>
 </body>

@@ -118,7 +118,7 @@
                         </li>
                         <br>
                         <li>
-                            <a href="{{ route('test') }}">
+                            <a href="{{ route('dashboard') }}">
                                 Switch Page
                             </a>
                         </li>
