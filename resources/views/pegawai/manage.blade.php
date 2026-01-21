@@ -6,7 +6,7 @@
 
 <a href="create.html">Tambah Pegawai</a>
 
-<table border="1" cellpadding="8">
+<table border="1" cellpadding="4">
     <tr>
         <th>No</th>
         <th>NIP</th>
