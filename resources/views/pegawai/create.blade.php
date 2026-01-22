@@ -8,7 +8,7 @@
             
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold text-dark mb-0">Tambah Pegawai Baru</h4>
-                <a href="{{ url('/pegawai') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('manajemen-pegawai') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Kembali
                 </a>
             </div>
@@ -19,7 +19,7 @@
                 </div>
                 <div class="card-body p-4">
                     
-                    <form action="#" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('simpan-pegawai') }}" method="POST" enctype="multipart/form-data">
                         @csrf <h6 class="text-uppercase text-muted border-bottom pb-2 mb-3" style="font-size: 0.8rem; letter-spacing: 1px;">Identitas Diri</h6>
                         
                         <div class="row mb-3">

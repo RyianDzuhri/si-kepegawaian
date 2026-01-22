@@ -7,7 +7,7 @@
         <h3 class="fw-bold text-dark">Data Pegawai</h3>
         <p class="text-muted mb-0">Manajemen data seluruh pegawai aktif.</p>
     </div>
-    <a href="{{ url('/pegawai/create') }}" class="btn btn-primary">
+    <a href="{{ route('tambah-pegawai') }}" class="btn btn-primary">
         <i class="fas fa-plus-circle me-2"></i>Tambah Pegawai
     </a>
 </div>
@@ -46,23 +46,24 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach ($pegawai as $item)
                     <tr>
                         <td>1</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=random" class="rounded-circle me-3" width="40" height="40">
                                 <div>
-                                    <div class="fw-bold text-dark">Budi Santoso, S.Kom</div>
-                                    <small class="text-muted d-block">NIP: 19850101 201001 1 001</small>
+                                    <div class="fw-bold text-dark">{{ $item->nama }}</div>
+                                    <small class="text-muted d-block">NIP: {{ $item->nip }}</small>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <div class="fw-semibold">Pranata Komputer</div>
-                            <small class="text-secondary">Penata Muda (III/a)</small>
+                            <div class="fw-semibold">{{ $item->jabatan }}</div>
+                            <small class="text-secondary">{{ $item->golongan }}</small>
                         </td>
                         <td>
-                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">PNS</span>
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">{{ $item->jenis_pegawai }}</span>
                         </td>
                         <td>
                             <div class="btn-group" role="group">
@@ -78,34 +79,7 @@
                             </div>
                         </td>
                     </tr>
-
-                    <tr>
-                        <td>2</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name=Siti+Aminah&background=random" class="rounded-circle me-3" width="40" height="40">
-                                <div>
-                                    <div class="fw-bold text-dark">Siti Aminah, S.Pd</div>
-                                    <small class="text-muted d-block">NIP: -</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="fw-semibold">Staf Administrasi</div>
-                            <small class="text-secondary">-</small>
-                        </td>
-                        <td>
-                            <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">Honorer</span>
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <a href="{{ url('/pegawai/detail') }}" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i></a>
-                                <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-
+                    @endforeach
                 </tbody>
             </table>
         </div>

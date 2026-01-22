@@ -69,17 +69,17 @@
         </div>
         
         <div class="mt-3">
-            <a href="{{ url('/') }}" class="{{ Request::is('/') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}">
                 <i class="fas fa-tachometer-alt me-2" style="width: 20px;"></i> Dashboard
             </a>
 
             <div class="text-uppercase text-muted px-3 mt-4 mb-2" style="font-size: 11px; letter-spacing: 1px;">Menu Utama</div>
 
-            <a href="{{ url('/pegawai') }}" class="{{ Request::is('pegawai*') ? 'active' : '' }}">
+            <a href="{{ route('manajemen-pegawai') }}">
                 <i class="fas fa-users me-2" style="width: 20px;"></i> Data Pegawai
             </a>
 
-            <a href="{{ url('/sk') }}" class="{{ Request::is('sk*') ? 'active' : '' }}">
+            <a href="">
                 <i class="fas fa-file-invoice me-2" style="width: 20px;"></i> Arsip SK
             </a>
         </div>
