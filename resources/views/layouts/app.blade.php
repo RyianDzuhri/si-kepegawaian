@@ -6,13 +6,12 @@
     <title>Sistem Informasi Kepegawaian</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         body {
             background-color: #f5f7fa;
-            overflow-x: hidden; /* Mencegah scroll horizontal */
+            overflow-x: hidden;
         }
         
         /* Gaya Sidebar */
@@ -30,7 +29,7 @@
         }
 
         .sidebar a {
-            color: #bdc3c7;
+            color: #bdc3c7; /* Warna link default */
             text-decoration: none;
             padding: 12px 20px;
             display: block;
@@ -44,14 +43,13 @@
             color: #fff;
         }
 
-        /* Menu Aktif (Saat halaman dibuka) */
+        /* Menu Aktif */
         .sidebar a.active {
             background-color: rgba(255,255,255,0.1);
             color: #fff;
-            border-left-color: #3498db; /* Garis biru di kiri */
+            border-left-color: #3498db;
         }
 
-        /* Konten Utama */
         .main-content {
             width: 100%;
             padding: 0;
@@ -65,7 +63,8 @@
     <div class="sidebar d-flex flex-column flex-shrink-0 p-0" style="width: 260px;">
         <div class="sidebar-header">
             <h5 class="mb-0 fw-bold"><i class="fas fa-building me-2"></i>SI-PEGAWAI</h5>
-            <small class="text-muted">Manajemen Kepegawaian</small>
+            
+            <small class="text-light opacity-75">Manajemen Kepegawaian</small>
         </div>
         
         <div class="mt-3">
@@ -73,7 +72,7 @@
                 <i class="fas fa-tachometer-alt me-2" style="width: 20px;"></i> Dashboard
             </a>
 
-            <div class="text-uppercase text-muted px-3 mt-4 mb-2" style="font-size: 11px; letter-spacing: 1px;">Menu Utama</div>
+            <div class="text-uppercase text-light opacity-50 px-3 mt-4 mb-2" style="font-size: 11px; letter-spacing: 1px;">Menu Utama</div>
 
             <a href="{{ url('/pegawai') }}" class="{{ Request::is('pegawai*') ? 'active' : '' }}">
                 <i class="fas fa-users me-2" style="width: 20px;"></i> Data Pegawai
