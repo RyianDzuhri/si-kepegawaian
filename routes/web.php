@@ -82,7 +82,7 @@ Route::get('/pegawai/detail', function () {
 
     return view('pegawai.show', compact('pegawai'));
 });
-
+ 
 // Rute Arsip SK
 Route::get('/sk', function () {
     return view('sk.index');

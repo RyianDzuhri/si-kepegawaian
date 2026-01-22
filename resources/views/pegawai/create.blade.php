@@ -1,4 +1,4 @@
-<!-- @extends('layouts.app') -->
+@extends('layouts.app')
 
 @section('content')
 
@@ -109,5 +109,23 @@
                                 <small class="text-muted">Kosongkan jika pegawai baru.</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">TMT Gaji Berkala Ter
+                                <label class="form-label fw-semibold">TMT Gaji Berkala Terakhir</label>
+                                <input type="date" name="tmt_gaji_berkala_terakhir" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="reset" class="btn btn-light border">Reset Form</button>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>Simpan Data
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
