@@ -15,3 +15,7 @@ Route::get('/dashboard', function () {
 Route::get('/pegawai', [ManajemenPegawaiController::class, 'index'])->name('manajemen-pegawai');
 Route::get('/pegawai/tambah', [ManajemenPegawaiController::class, 'create'])->name('tambah-pegawai');
 Route::post('/pegawai/store', [ManajemenPegawaiController::class, 'store'])->name('simpan-pegawai');
+Route::get('/pegawai/{id}', [ManajemenPegawaiController::class, 'show'])->name('tampil-pegawai');
+Route::get('/pegawai/{id}/edit', [ManajemenPegawaiController::class, 'edit'])->name('edit-pegawai');
+Route::put('/pegawai/{id}', [ManajemenPegawaiController::class, 'update'])->name('update-pegawai');
+Route::delete('/pegawai/{id}', [ManajemenPegawaiController::class, 'destroy'])->name('hapus-pegawai');

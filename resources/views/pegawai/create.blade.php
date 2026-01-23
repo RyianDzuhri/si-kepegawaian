@@ -18,7 +18,12 @@
                     <h6 class="mb-0 text-primary"><i class="fas fa-user-plus me-2"></i>Formulir Data Pegawai</h6>
                 </div>
                 <div class="card-body p-4">
-                    
+                    @if (session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
                     <form action="{{ route('simpan-pegawai') }}" method="POST" enctype="multipart/form-data">
                         @csrf <h6 class="text-uppercase text-muted border-bottom pb-2 mb-3" style="font-size: 0.8rem; letter-spacing: 1px;">Identitas Diri</h6>
                         

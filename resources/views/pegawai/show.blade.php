@@ -31,7 +31,7 @@
                             <span class="badge bg-primary px-3 py-2 mb-2">{{ $pegawai->nip }}</span>
                             
                             <div class="d-grid gap-2 mt-3">
-                                <a href="{{ url('/pegawai/edit') }}" class="btn btn-warning btn-sm">
+                                <a href="{{ route('edit-pegawai', ['id' => $pegawai->id]) }}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-user-edit me-2"></i>Edit Biodata
                                 </a>
                             </div>

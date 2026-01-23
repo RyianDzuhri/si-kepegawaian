@@ -51,7 +51,7 @@
                         <td>1</td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=random" class="rounded-circle me-3" width="40" height="40">
+                                <img src="{{ asset('storage/'. $item->foto_profil) }}" class="rounded-circle me-3" width="40" height="40">
                                 <div>
                                     <div class="fw-bold text-dark">{{ $item->nama }}</div>
                                     <small class="text-muted d-block">NIP: {{ $item->nip }}</small>
@@ -67,15 +67,21 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ url('/pegawai/detail') }}" class="btn btn-sm btn-outline-info" title="Detail & SK">
+                                <a href="{{ route('tampil-pegawai', ['id' => $item->id]) }}" class="btn btn-sm btn-outline-info" title="Detail & SK">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="#" class="btn btn-sm btn-outline-warning" title="Edit Data">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="return confirm('Yakin ingin menghapus?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <form action="{{ route('hapus-pegawai', $item->id) }}" 
+                                    method="POST" 
+                                    class="d-inline"
+                                    onsubmit="return confirm('Yakin ingin menghapus?')">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button class="btn btn-sm btn-outline-danger" title="Hapus">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

@@ -19,7 +19,7 @@
                 </div>
                 <div class="card-body p-4">
                     
-                    <form action="#" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('update-pegawai', ['id' => $pegawai->id]) }}" method="POST" enctype="multipart/form-data">
                         @csrf 
                         @method('PUT') <h6 class="text-uppercase text-muted border-bottom pb-2 mb-3" style="font-size: 0.8rem;">Identitas Diri</h6>
                         
@@ -106,7 +106,6 @@
                                 <i class="fas fa-save me-2"></i>Simpan Perubahan
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
