@@ -7,7 +7,7 @@
         <h3 class="fw-bold text-dark">Arsip Digital SK</h3>
         <p class="text-muted mb-0">Cari dan unduh dokumen SK pegawai.</p>
     </div>
-    <a href="{{ url('/sk/create') }}" class="btn btn-success">
+    <a href="{{ route('tambah-sk') }}" class="btn btn-success">
         <i class="fas fa-cloud-upload-alt me-2"></i>Upload SK Baru
     </a>
 </div>
@@ -59,49 +59,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>
-                            <div class="fw-bold">Budi Santoso</div>
-                            <small class="text-muted">19850101 201001 1 001</small>
-                        </td>
-                        <td>
-                            <span class="badge bg-primary bg-opacity-10 text-primary mb-1">SK Kenaikan Pangkat</span><br>
-                            <small class="text-dark">No: 800/123/BKD/2024</small>
-                        </td>
-                        <td>01 Jan 2024</td>
-                        <td>
-                            <div class="d-flex align-items-center text-danger">
-                                <i class="fas fa-file-pdf fa-lg me-2"></i>
-                                <small>sk_budi_2024.pdf</small>
-                            </div>
-                        </td>
-                        <td>
-                            <a href="#" class="btn btn-sm btn-dark"><i class="fas fa-download"></i> Unduh</a>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>2</td>
-                        <td>
-                            <div class="fw-bold">Siti Aminah</div>
-                            <small class="text-muted">19900202 201501 2 005</small>
-                        </td>
-                        <td>
-                            <span class="badge bg-success bg-opacity-10 text-success mb-1">SK Gaji Berkala</span><br>
-                            <small class="text-dark">No: 900/456/BKD/2023</small>
-                        </td>
-                        <td>01 Mar 2023</td>
-                        <td>
-                            <div class="d-flex align-items-center text-secondary">
-                                <i class="fas fa-file-image fa-lg me-2"></i>
-                                <small>sk_siti.jpg</small>
-                            </div>
-                        </td>
-                        <td>
-                            <a href="#" class="btn btn-sm btn-dark"><i class="fas fa-download"></i> Unduh</a>
-                        </td>
-                    </tr>
+                    @foreach ($suratKeputusan as $sk)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>
+                                <div class="fw-bold">{{ $sk->pegawai->nama }}</div>
+                                <small class="text-muted">{{ $sk->pegawai->nip }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary mb-1">{{ $sk->jenis_sk }}</span><br>
+                                <small class="text-dark">No: {{ $sk->nomor_sk }}</small>
+                            </td>
+                            <td>{{ \Carbon\Carbon::parse($sk->tanggal_sk)->isoFormat('D MMM YYYY') }}</td>
+                            <td>
+                                <div class="d-flex align-items-center text-danger">
+                                    <i class="fas fa-file-pdf fa-lg me-2"></i>
+                                    <small>{{ basename($sk->file_sk) }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{ asset('storage/' . $sk->file_sk) }}" target="_blank" class="btn btn-sm btn-dark"><i class="fas fa-download"></i> Unduh</a>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>

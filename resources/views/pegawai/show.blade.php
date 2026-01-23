@@ -101,8 +101,8 @@
                     <h6 class="mb-0 fw-bold text-dark">
                         <i class="fas fa-folder-open me-2 text-warning"></i> Arsip Dokumen SK
                     </h6>
-                    
-                    <a href="{{ url('/sk/create?pegawai_id='.$pegawai->id) }}" class="btn btn-success btn-sm">
+
+                    <a href="{{ route('tambah-sk') }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus-circle me-1"></i> Upload SK Baru
                     </a>
                 </div>

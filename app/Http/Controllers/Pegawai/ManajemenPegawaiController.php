@@ -11,7 +11,7 @@ class ManajemenPegawaiController extends Controller
 {
     public function index()
     {
-        $pegawai = Pegawai::all()->paginate(5);
+        $pegawai = Pegawai::paginate(5);
         return view('pegawai.index', compact('pegawai'));
     }
 

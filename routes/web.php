@@ -29,3 +29,5 @@ Route::delete('/pegawai/{id}', [ManajemenPegawaiController::class, 'destroy'])->
 // Rute untuk melihat Arsip SK
 
 Route::get('/sk', [SKController::class, 'index'])->name('arsip-sk');
+Route::get('/sk/tambah', [SKController::class, 'create'])->name('tambah-sk');
+Route::post('/sk/store', [SKController::class, 'store'])->name('simpan-sk');

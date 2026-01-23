@@ -8,7 +8,7 @@
             
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold text-dark mb-0">Upload Dokumen SK</h4>
-                <a href="" class="btn btn-outline-secondary">
+                <a href="{{ route('arsip-sk') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Batal
                 </a>
             </div>
@@ -16,16 +16,16 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     
-                    <form action="#" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('simpan-sk') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        
                         <div class="mb-4">
                             <label class="form-label fw-bold">Pemilik SK <span class="text-danger">*</span></label>
                             <select name="pegawai_id" class="form-select form-select-lg bg-light" required>
                                 <option value="">-- Cari Nama Pegawai --</option>
-                                <option value="1">Budi Santoso - 19850101 201001 1 001</option>
-                                <option value="2">Siti Aminah - 19900202 201501 2 005</option>
-                                </select>
+                                @foreach ($pegawaiList as $pegawai)
+                                    <option value="{{ $pegawai->id }}">{{ $pegawai->nama }} - {{ $pegawai->nip }}</option>
+                                @endforeach
+                            </select>
                             <small class="text-muted">Pilih pegawai yang bersangkutan dengan SK ini.</small>
                         </div>
 
@@ -77,11 +77,10 @@
                                 <i class="fas fa-save me-2"></i> Simpan ke Arsip
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
-
+            
         </div>
     </div>
 </div>
