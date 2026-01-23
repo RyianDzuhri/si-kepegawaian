@@ -61,6 +61,9 @@
                             <label class="form-label">Foto Profil</label>
                             <input type="file" name="foto_profil" class="form-control">
                             <small class="text-muted">Format: JPG, PNG. Maksimal 2MB.</small>
+                            @error('foto_profil')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <h6 class="text-uppercase text-muted border-bottom pb-2 mb-3 mt-4" style="font-size: 0.8rem; letter-spacing: 1px;">Data Jabatan & Pangkat</h6>
