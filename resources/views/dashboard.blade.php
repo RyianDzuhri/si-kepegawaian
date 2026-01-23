@@ -14,7 +14,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted mb-1" style="font-size: 0.9rem;">Total Pegawai</p>
-                        <h3 class="fw-bold text-primary mb-0">125</h3>
+                        <h3 class="fw-bold text-primary mb-0">{{ $totalPegawai }}</h3>
                     </div>
                     <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
                         <i class="fas fa-users fa-lg"></i>
@@ -30,7 +30,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted mb-1" style="font-size: 0.9rem;">Arsip SK</p>
-                        <h3 class="fw-bold text-success mb-0">450</h3>
+                        <h3 class="fw-bold text-success mb-0">{{ $totalSk }}</h3>
                     </div>
                     <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
                         <i class="fas fa-file-archive fa-lg"></i>

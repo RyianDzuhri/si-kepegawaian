@@ -22,27 +22,29 @@ class ManajemenPegawaiController extends Controller
 
     public function store(Request $request)
     {
-        if (Pegawai::where('nip', $request->nip)->exists()) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'NIP sudah terdaftar di sistem.');
-        }
-
-        $data = $request->validate([
-            'nip' => 'required|string|max:20|unique:pegawai,nip',
-            'nama' => 'required|string|max:100',
-            'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'tempat_lahir' => 'required|string|max:50',
-            'tanggal_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:L,P',
-            'jabatan' => 'required|string|max:100',
-            'jenis_pegawai' => 'required|string|max:50',
-            'golongan' => 'nullable|string|max:20',
-            'pendidikan_terakhir' => 'required|string|max:100',
-            'tmt_pangkat_terakhir' => 'nullable|date',
-            'tmt_gaji_berkala_terakhir' => 'nullable|date',
-        ]);
+        $data = $request->validate(
+            [
+                'nip' => 'required|string|max:20|unique:pegawai,nip',
+                'nama' => 'required|string|max:100',
+                'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+                'tempat_lahir' => 'required|string|max:50',
+                'tanggal_lahir' => 'required|date',
+                'jenis_kelamin' => 'required|in:L,P',
+                'jabatan' => 'required|string|max:100',
+                'jenis_pegawai' => 'required|string|max:50',
+                'golongan' => 'nullable|string|max:20',
+                'pendidikan_terakhir' => 'required|string|max:100',
+                'tmt_pangkat_terakhir' => 'nullable|date',
+                'tmt_gaji_berkala_terakhir' => 'nullable|date',
+            ],
+            [
+                // custom pesan error
+                'nip.unique' => 'NIP sudah terdaftar di sistem.',
+                'foto_profil.max' => 'Ukuran foto maksimal 2 MB.',
+                'foto_profil.image' => 'File yang diupload harus berupa gambar.',
+                'foto_profil.mimes' => 'Format foto harus JPG, JPEG, atau PNG.',
+            ]
+        );
 
         if ($request->hasFile('foto_profil')) {
             $file = $request->file('foto_profil');
@@ -55,13 +57,14 @@ class ManajemenPegawaiController extends Controller
                 'public'
             );
         }
-        
+
         Pegawai::create($data);
 
         return redirect()
             ->route('manajemen-pegawai')
-            ->with('success', 'Data pegawai berhasil disimpan');
+            ->with('success', 'Data pegawai berhasil disimpan.');
     }
+
 
     public function show($id)
     {
