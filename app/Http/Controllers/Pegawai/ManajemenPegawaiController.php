@@ -9,12 +9,34 @@ use Illuminate\Support\Facades\Storage;
 
 class ManajemenPegawaiController extends Controller
 {
-    public function index()
-    {
-        $pegawai = Pegawai::paginate(5);
-        return view('pegawai.index', compact('pegawai'));
+    public function index(Request $request)
+{
+    // 1. Mulai Query Builder
+    $query = Pegawai::query();
+
+    // 2. Logika Pencarian (NIP atau Nama)
+    // Jika ada input dengan nama 'q' (query)
+    if ($request->filled('q')) {
+        $search = $request->input('q');
+        $query->where(function($q) use ($search) {
+            $q->where('nama', 'like', "%{$search}%")
+              ->orWhere('nip', 'like', "%{$search}%");
+        });
     }
 
+    // 3. Logika Filter Status (Jenis Pegawai)
+    // Jika ada input dengan nama 'status'
+    if ($request->filled('status')) {
+        $query->where('jenis_pegawai', $request->input('status'));
+    }
+
+    // 4. Ambil data (gunakan paginate agar halaman tidak berat)
+    // latest() agar data terbaru muncul di atas
+    $pegawai = $query->latest()->paginate(10); 
+
+    // Penting: tambahkan withQueryString() agar saat pindah halaman (page 2), filternya tidak hilang
+    return view('pegawai.index', compact('pegawai'));
+}
     public function create()
     {
         return view('pegawai.create');
