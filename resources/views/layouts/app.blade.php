@@ -78,7 +78,7 @@
                 <i class="fas fa-users me-2" style="width: 20px;"></i> Data Pegawai
             </a>
 
-            <a href="">
+            <a href="{{ route('arsip-sk') }}">
                 <i class="fas fa-file-invoice me-2" style="width: 20px;"></i> Arsip SK
             </a>
         </div>

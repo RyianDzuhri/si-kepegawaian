@@ -8,7 +8,7 @@
             
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold text-dark mb-0">Upload Dokumen SK</h4>
-                <a href="{{ url('/sk') }}" class="btn btn-outline-secondary">
+                <a href="" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Batal
                 </a>
             </div>
