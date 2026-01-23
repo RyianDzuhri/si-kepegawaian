@@ -15,26 +15,26 @@ class ManajemenPegawaiController extends Controller
     $query = Pegawai::query();
 
     // 2. Logika Pencarian (NIP atau Nama)
-    // Jika ada input dengan nama 'q' (query)
+    // Jika ada input 'q' (query) dari form
     if ($request->filled('q')) {
         $search = $request->input('q');
         $query->where(function($q) use ($search) {
-            $q->where('nama', 'like', "%{$search}%")
-              ->orWhere('nip', 'like', "%{$search}%");
+            $q->where('nama', 'LIKE', "%{$search}%")
+              ->orWhere('nip', 'LIKE', "%{$search}%");
         });
     }
 
-    // 3. Logika Filter Status (Jenis Pegawai)
-    // Jika ada input dengan nama 'status'
+    // 3. Logika Filter Status (Dropdown)
+    // Jika ada input 'status' dari form
     if ($request->filled('status')) {
         $query->where('jenis_pegawai', $request->input('status'));
     }
 
-    // 4. Ambil data (gunakan paginate agar halaman tidak berat)
+    // 4. Ambil data dengan Pagination (10 per halaman)
     // latest() agar data terbaru muncul di atas
     $pegawai = $query->latest()->paginate(10); 
 
-    // Penting: tambahkan withQueryString() agar saat pindah halaman (page 2), filternya tidak hilang
+    // 5. Kembalikan ke view
     return view('pegawai.index', compact('pegawai'));
 }
     public function create()

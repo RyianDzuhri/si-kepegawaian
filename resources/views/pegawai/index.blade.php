@@ -15,24 +15,33 @@
 <div class="card shadow-sm border-0">
     <div class="card-body">
         
-        <div class="row mb-4 g-2">
-            <div class="col-md-4">
-                <div class="input-group">
-                    <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
-                    <input type="text" class="form-control" placeholder="Cari NIP atau Nama...">
+        <form action="{{ url()->current() }}" method="GET"> 
+            <div class="row mb-4 g-2">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
+                        <input type="text" name="q" class="form-control" placeholder="Cari NIP atau Nama..." value="{{ request('q') }}">
+                    </div>
                 </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Semua Status</option>
+                        <option value="PNS" {{ request('status') == 'PNS' ? 'selected' : '' }}>PNS</option>
+                        <option value="Honorer" {{ request('status') == 'Honorer' ? 'selected' : '' }}>Honorer/Kontrak</option>
+                        <option value="PPPK" {{ request('status') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-dark w-100">Filter</button>
+                </div>
+                
+                @if(request('q') || request('status'))
+                <div class="col-md-2">
+                    <a href="{{ url()->current() }}" class="btn btn-outline-secondary w-100">Reset</a>
+                </div>
+                @endif
             </div>
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option value="">Semua Jabatan</option>
-                    <option value="PNS">PNS</option>
-                    <option value="Honorer">Honorer/Kontrak</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-dark w-100">Filter</button>
-            </div>
-        </div>
+        </form>
 
         <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -46,12 +55,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($pegawai as $item)
+                    @forelse ($pegawai as $index => $item)
                     <tr>
-                        <td>1</td>
+                        <td>{{ $pegawai->firstItem() + $index }}</td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <img src="{{ asset('storage/'. $item->foto_profil) }}" class="rounded-circle me-3" width="40" height="40">
+                                @if($item->foto_profil)
+                                    <img src="{{ asset('storage/'. $item->foto_profil) }}" class="rounded-circle me-3" width="40" height="40" style="object-fit:cover">
+                                @else
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($item->nama) }}&background=random" class="rounded-circle me-3" width="40" height="40">
+                                @endif
+                                
                                 <div>
                                     <div class="fw-bold text-dark">{{ $item->nama }}</div>
                                     <small class="text-muted d-block">NIP: {{ $item->nip }}</small>
@@ -60,20 +74,31 @@
                         </td>
                         <td>
                             <div class="fw-semibold">{{ $item->jabatan }}</div>
-                            <small class="text-secondary">{{ $item->golongan }}</small>
+                            <small class="text-secondary">{{ $item->golongan ?? '-' }}</small>
                         </td>
                         <td>
-                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">{{ $item->jenis_pegawai }}</span>
+                            @php
+                                $badgeClass = match($item->jenis_pegawai) {
+                                    'PNS' => 'bg-success text-success',
+                                    'Honorer' => 'bg-warning text-warning',
+                                    'PPPK' => 'bg-info text-info',
+                                    default => 'bg-secondary text-secondary'
+                                };
+                            @endphp
+                            <span class="badge {{ $badgeClass }} bg-opacity-10 px-3 py-2">{{ $item->jenis_pegawai }}</span>
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ route('tampil-pegawai', ['id' => $item->id]) }}" class="btn btn-sm btn-outline-info" title="Detail & SK">
+                                <a href="{{ route('tampil-pegawai', ['id' => $item->id]) }}" class="btn btn-sm btn-outline-info" title="Detail">
                                     <i class="fas fa-eye"></i>
                                 </a>
+                                
+                                {{-- <a href="{{ route('edit-pegawai', $item->id) }}" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i></a> --}}
+
                                 <form action="{{ route('hapus-pegawai', $item->id) }}" 
                                     method="POST" 
                                     class="d-inline"
-                                    onsubmit="return confirm('Yakin ingin menghapus?')">
+                                    onsubmit="return confirm('Yakin ingin menghapus data {{ $item->nama }}?')">
 
                                     @csrf
                                     @method('DELETE')
@@ -85,21 +110,20 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fas fa-search fa-2x mb-3"></i><br>
+                            Data pegawai tidak ditemukan.
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <div class="d-flex justify-content-end mt-3">
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
+            {{ $pegawai->withQueryString()->links() }}
         </div>
 
     </div>
