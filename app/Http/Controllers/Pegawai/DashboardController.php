@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Pegawai;
 use App\Http\Controllers\Controller;
 use App\Models\Pegawai\Pegawai;
 use App\Models\Pegawai\SuratKeputusan;
-use Illuminate\Http\Request;
+
 
 class DashboardController extends Controller
 {

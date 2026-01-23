@@ -1,21 +1,12 @@
 <?php
 
-use App\Http\Controllers\Controller;
-use App\Http\Controllers\Pegawai\Dashboard;
 use App\Http\Controllers\Pegawai\DashboardController;
 use App\Http\Controllers\Pegawai\ManajemenPegawaiController;
 use App\Http\Controllers\Pegawai\SKController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
-
-Route::get('/', [DashboardController::class, 'index']);
+Route::get('/', [DashboardController::class, 'index'])
+    ->name('dashboard');
 
 
 // Rute untuk melihat Manajemen Pegawai
