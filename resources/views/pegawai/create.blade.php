@@ -146,6 +146,27 @@
                             </div>
                         </div>
 
+                        <div class="alert alert-info mt-4 d-flex">
+                            <i class="fas fa-bell me-3 mt-1"></i>
+                            <div>
+                                <strong>Penting untuk Notifikasi:</strong><br>
+                                Masukkan tanggal TMT (Terhitung Mulai Tanggal) terakhir agar sistem bisa mengingatkan jadwal Kenaikan Pangkat & Gaji Berkala berikutnya.
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">TMT Kenaikan Pangkat Terakhir</label>
+                                <input type="date" name="tmt_pangkat_terakhir" class="form-control" required>
+                                <small class="text-muted">Sesuai SK Pangkat terakhir.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">TMT Gaji Berkala Terakhir</label>
+                                <input type="date" name="tmt_gaji_berkala_terakhir" class="form-control" required>
+                                <small class="text-muted">Sesuai SK Berkala terakhir.</small>
+                            </div>
+                        </div>
+                        
                         <div class="d-flex justify-content-end gap-2">
                             <button type="reset" class="btn btn-light border">Reset</button>
                             <button type="submit" class="btn btn-primary px-4">
