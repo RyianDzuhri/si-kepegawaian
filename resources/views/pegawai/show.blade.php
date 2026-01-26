@@ -46,7 +46,6 @@
                                     <td width="5%">:</td>
                                     <td class="fw-semibold">
                                         {{ $pegawai->tempat_lahir }}, 
-                                        {{-- Format tanggal Indonesia (membutuhkan Carbon nanti) --}}
                                         {{ \Carbon\Carbon::parse($pegawai->tanggal_lahir)->isoFormat('D MMMM Y') }}
                                     </td>
                                 </tr>
@@ -59,6 +58,11 @@
                                     <td class="text-muted">Status Kepegawaian</td>
                                     <td>:</td>
                                     <td><span class="badge bg-info text-dark">{{ $pegawai->jenis_pegawai }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Unit Kerja</td>
+                                    <td>:</td>
+                                    <td>{{ $pegawai->unit_kerja ?? '-' }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">Jabatan</td>
@@ -81,11 +85,11 @@
                                 <i class="fas fa-info-circle text-primary me-3 fs-4"></i>
                                 <div>
                                     <small class="text-muted d-block">TMT Pangkat Terakhir:</small>
-                                    <strong>{{ \Carbon\Carbon::parse($pegawai->tmt_pangkat_terakhir)->isoFormat('D MMMM Y') }}</strong>
+                                    <strong>{{ $pegawai->tmt_pangkat_terakhir ? \Carbon\Carbon::parse($pegawai->tmt_pangkat_terakhir)->isoFormat('D MMMM Y') : '-' }}</strong>
                                 </div>
                                 <div class="ms-5">
                                     <small class="text-muted d-block">TMT Gaji Berkala Terakhir:</small>
-                                    <strong>{{ \Carbon\Carbon::parse($pegawai->tmt_gaji_berkala_terakhir)->isoFormat('D MMMM Y') }}</strong>
+                                    <strong>{{ $pegawai->tmt_gaji_berkala_terakhir ? \Carbon\Carbon::parse($pegawai->tmt_gaji_berkala_terakhir)->isoFormat('D MMMM Y') : '-' }}</strong>
                                 </div>
                             </div>
 
@@ -102,7 +106,7 @@
                         <i class="fas fa-folder-open me-2 text-warning"></i> Arsip Dokumen SK
                     </h6>
 
-                    <a href="{{ route('tambah-sk') }}" class="btn btn-success btn-sm">
+                    <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus-circle me-1"></i> Upload SK Baru
                     </a>
                 </div>
@@ -138,7 +142,8 @@
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-link text-danger p-0" onclick="return confirm('Hapus SK ini?')">
+                                        {{-- Fitur hapus SK belum ada rutenya, saya siapkan tombolnya saja --}}
+                                        <button class="btn btn-sm btn-link text-danger p-0" onclick="alert('Fitur hapus belum diaktifkan')">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </td>
@@ -146,9 +151,9 @@
                                 @empty
                                 <tr>
                                     <td colspan="7" class="text-center py-5">
-                                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" width="80" class="mb-3 opacity-50">
-                                        <p class="text-muted mb-0">Belum ada dokumen SK yang diupload untuk pegawai ini.</p>
-                                        <a href="{{ url('/sk/create?pegawai_id='.$pegawai->id) }}" class="btn btn-sm btn-primary mt-2">
+                                        <div class="text-muted mb-2"><i class="fas fa-folder-open fa-2x opacity-25"></i></div>
+                                        <p class="text-muted mb-0">Belum ada dokumen SK yang diupload.</p>
+                                        <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-sm btn-outline-primary mt-2">
                                             Upload Sekarang
                                         </a>
                                     </td>

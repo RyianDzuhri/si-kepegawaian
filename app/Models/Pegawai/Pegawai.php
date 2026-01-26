@@ -9,22 +9,34 @@ class Pegawai extends Model
 {
     use HasFactory;
 
-    // Nama tabel (karena bukan plural otomatis)
     protected $table = 'pegawai';
 
-    // Kolom yang boleh diisi mass assignment
+    // Update kolom yang boleh diisi
     protected $fillable = [
-        'nip',
-        'nama',
+        // Identitas & Kontak
+        'nip', 
+        'nik', 
+        'nama', 
         'foto_profil',
-        'tempat_lahir',
-        'tanggal_lahir',
+        'no_hp',
+        'email',
+        
+        // Biodata
+        'tempat_lahir', 
+        'tanggal_lahir', 
         'jenis_kelamin',
-        'jabatan',
-        'jenis_pegawai',
-        'golongan',
+        'agama',
+        'status_pernikahan',
+        
+        // Kepegawaian
+        'unit_kerja',
+        'jabatan', 
+        'jenis_pegawai', 
+        'golongan', 
         'pendidikan_terakhir',
-        'tmt_pangkat_terakhir',
+        
+        // TMT & Notifikasi
+        'tmt_pangkat_terakhir', 
         'tmt_gaji_berkala_terakhir',
     ];
 

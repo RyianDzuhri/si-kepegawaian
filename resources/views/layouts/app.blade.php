@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
+<style>
         body {
             background-color: #f5f7fa;
             overflow-x: hidden;
@@ -16,12 +16,27 @@
         
         /* Gaya Sidebar */
         .sidebar {
-            min-height: 100vh;
+            /* UBAH DI SINI: */
+            height: 100vh; /* Tinggi pas 1 layar penuh */
+            position: sticky; /* Membuat elemen menempel */
+            top: 0; /* Menempel di bagian atas layar */
+            overflow-y: auto; /* Agar sidebar bisa di-scroll sendiri jika menunya panjang */
+            
             background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
             color: white;
             transition: all 0.3s;
+            z-index: 100; /* Memastikan sidebar di atas elemen lain */
         }
         
+        /* Custom Scrollbar untuk Sidebar (Opsional - biar lebih rapi) */
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+
         .sidebar-header {
             padding: 20px;
             text-align: center;
@@ -29,7 +44,7 @@
         }
 
         .sidebar a {
-            color: #bdc3c7; /* Warna link default */
+            color: #bdc3c7;
             text-decoration: none;
             padding: 12px 20px;
             display: block;
@@ -43,7 +58,6 @@
             color: #fff;
         }
 
-        /* Menu Aktif */
         .sidebar a.active {
             background-color: rgba(255,255,255,0.1);
             color: #fff;
@@ -53,6 +67,8 @@
         .main-content {
             width: 100%;
             padding: 0;
+            /* Opsional: Tambahkan min-height agar footer tidak naik jika konten sedikit */
+            min-height: 100vh; 
         }
     </style>
 </head>
