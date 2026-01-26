@@ -20,22 +20,35 @@
                 <div class="col-md-4">
                     <div class="input-group">
                         <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
-                        <input type="text" name="q" class="form-control" placeholder="Cari NIP atau Nama..." value="{{ request('q') }}">
+                        <input type="text" name="q" class="form-control" placeholder="Cari NIP, NIK, atau Nama..." value="{{ request('q') }}">
                     </div>
                 </div>
+
                 <div class="col-md-3">
+                    <select name="unit_kerja" class="form-select">
+                        <option value="">Semua Unit Kerja</option>
+                        @foreach($listUnitKerja as $uk)
+                            <option value="{{ $uk }}" {{ request('unit_kerja') == $uk ? 'selected' : '' }}>
+                                {{ $uk }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2">
                     <select name="status" class="form-select">
                         <option value="">Semua Status</option>
                         <option value="PNS" {{ request('status') == 'PNS' ? 'selected' : '' }}>PNS</option>
-                        <option value="Honorer" {{ request('status') == 'Honorer' ? 'selected' : '' }}>Honorer/Kontrak</option>
                         <option value="PPPK" {{ request('status') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                        <option value="Honorer" {{ request('status') == 'Honorer' ? 'selected' : '' }}>Honorer/Kontrak</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-dark w-100">Filter</button>
+
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-dark w-100"><i class="fas fa-filter"></i></button>
                 </div>
                 
-                @if(request('q') || request('status'))
+                @if(request()->anyFilled(['q', 'status', 'unit_kerja']))
                 <div class="col-md-2">
                     <a href="{{ url()->current() }}" class="btn btn-outline-secondary w-100">Reset</a>
                 </div>
@@ -48,10 +61,11 @@
                 <thead class="table-light">
                     <tr>
                         <th width="5%">No</th>
-                        <th width="35%">Pegawai</th>
-                        <th width="25%">Jabatan & Golongan</th>
-                        <th width="15%">Status</th>
-                        <th width="20%">Aksi</th>
+                        <th width="30%">Pegawai</th>
+                        <th width="20%">Unit Kerja</th>
+                        <th width="20%">Jabatan & Golongan</th>
+                        <th width="10%">Status</th>
+                        <th width="15%" class="text-end pe-3">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,9 +82,14 @@
                                 
                                 <div>
                                     <div class="fw-bold text-dark">{{ $item->nama }}</div>
-                                    <small class="text-muted d-block">NIP: {{ $item->nip }}</small>
+                                    <small class="text-muted d-block">
+                                        {{ $item->nip ? 'NIP: '.$item->nip : 'NIK: '.$item->nik }}
+                                    </small>
                                 </div>
                             </div>
+                        </td>
+                        <td>
+                            <div class="text-dark">{{ $item->unit_kerja }}</div>
                         </td>
                         <td>
                             <div class="fw-semibold">{{ $item->jabatan }}</div>
@@ -87,13 +106,15 @@
                             @endphp
                             <span class="badge {{ $badgeClass }} bg-opacity-10 px-3 py-2">{{ $item->jenis_pegawai }}</span>
                         </td>
-                        <td>
+                        <td class="text-end pe-3">
                             <div class="btn-group" role="group">
                                 <a href="{{ route('tampil-pegawai', ['id' => $item->id]) }}" class="btn btn-sm btn-outline-info" title="Detail">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 
-                                {{-- <a href="{{ route('edit-pegawai', $item->id) }}" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i></a> --}}
+                                <a href="{{ route('edit-pegawai', $item->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
 
                                 <form action="{{ route('hapus-pegawai', $item->id) }}" 
                                     method="POST" 
@@ -112,8 +133,8 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            <i class="fas fa-search fa-2x mb-3"></i><br>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-search fa-2x mb-3 opacity-50"></i><br>
                             Data pegawai tidak ditemukan.
                         </td>
                     </tr>
