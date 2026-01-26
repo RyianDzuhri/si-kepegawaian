@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [DashboardController::class, 'index'])
     ->name('dashboard');
 
-
 // Rute untuk melihat Manajemen Pegawai
 
 Route::get('/pegawai', [ManajemenPegawaiController::class, 'index'])->name('manajemen-pegawai');
