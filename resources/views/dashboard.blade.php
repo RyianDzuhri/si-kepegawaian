@@ -128,7 +128,9 @@
                                     {{ \Carbon\Carbon::parse($p->tmt_pangkat_terakhir)->addYears(4)->translatedFormat('d M Y') }}
                                 </td>
                                 <td>
-                                    <a href="{{ route('tampil-pegawai', $p->id) }}" class="btn btn-sm btn-outline-primary">Lihat</a>
+                                    <a href="{{ route('tambah-sk', ['pegawai_id' => $p->id]) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-upload me-1"></i> Proses SK
+                                    </a>
                                 </td>
                             </tr>
                             @empty
@@ -166,7 +168,11 @@
                             <td class="text-success fw-bold">
                                 {{ \Carbon\Carbon::parse($p->tmt_gaji_berkala_terakhir)->addYears(2)->translatedFormat('d M Y') }}
                             </td>
-                            <td><a href="{{ route('tampil-pegawai', $p->id) }}" class="btn btn-sm btn-success">Proses</a></td>
+                            <td>
+                                <a href="{{ route('tambah-sk', ['pegawai_id' => $p->id]) }}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-file-invoice me-1"></i> Proses SK
+                                </a>
+                            </td>
                         </tr>
                         @empty
                         <tr><td colspan="5" class="text-center text-muted py-4">Belum ada jadwal KGB dalam waktu dekat.</td></tr>
@@ -187,6 +193,7 @@
                             <th>Tanggal Lahir</th>
                             <th>Usia Saat Ini</th>
                             <th>Estimasi Pensiun (60 Thn)</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -203,9 +210,12 @@
                             <td class="text-danger fw-bold">
                                 {{ \Carbon\Carbon::parse($p->tanggal_lahir)->addYears(60)->translatedFormat('d M Y') }}
                             </td>
+                            <td>
+                                <a href="{{ route('tampil-pegawai', $p->id) }}" class="btn btn-sm btn-outline-secondary">Detail</a>
+                            </td>
                         </tr>
                         @empty
-                        <tr><td colspan="4" class="text-center text-muted py-4">Tidak ada pegawai yang mendekati pensiun.</td></tr>
+                        <tr><td colspan="5" class="text-center text-muted py-4">Tidak ada pegawai yang mendekati pensiun.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

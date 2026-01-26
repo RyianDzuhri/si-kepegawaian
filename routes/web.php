@@ -18,8 +18,7 @@ Route::get('/pegawai/{id}/edit', [ManajemenPegawaiController::class, 'edit'])->n
 Route::put('/pegawai/{id}', [ManajemenPegawaiController::class, 'update'])->name('update-pegawai');
 Route::delete('/pegawai/{id}', [ManajemenPegawaiController::class, 'destroy'])->name('hapus-pegawai');
 
-// Rute untuk melihat Arsip SK
-
+// Modul SK
 Route::get('/sk', [SKController::class, 'index'])->name('arsip-sk');
-Route::get('/sk/tambah', [SKController::class, 'create'])->name('tambah-sk');
-Route::post('/sk/store', [SKController::class, 'store'])->name('simpan-sk');
+Route::get('/sk/create', [SKController::class, 'create'])->name('tambah-sk'); // URL bisa menerima ?pegawai_id=1
+Route::post('/sk', [SKController::class, 'store'])->name('simpan-sk');
