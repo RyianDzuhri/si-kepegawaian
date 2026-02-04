@@ -100,9 +100,14 @@
         </div>
 
         <div class="mt-auto p-3">
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" id="logout-form">
                 @csrf
-                <button type="submit">Logout</button>
+
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                class="d-flex align-items-center text-danger rounded bg-dark bg-opacity-25 p-2 text-decoration-none">
+
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
             </form>
         </div>
     </div>
