@@ -100,9 +100,10 @@
         </div>
 
         <div class="mt-auto p-3">
-            <a href="#" class="text-danger rounded bg-dark bg-opacity-25">
-                <i class="fas fa-sign-out-alt me-2"></i> Logout
-            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit">Logout</button>
+            </form>
         </div>
     </div>
 
