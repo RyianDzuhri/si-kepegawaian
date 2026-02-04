@@ -1,38 +1,27 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Login Admin</title>
-</head>
-<body>
+@extends('layouts.auth')
 
-<h2>Login Admin</h2>
+@section('content')
 
 @if ($errors->any())
-    <p style="color:red;">
-        {{ $errors->first() }}
-    </p>
+    <div class="alert alert-danger">{{ $errors->first() }}</div>
 @endif
 
 <form method="POST" action="{{ route('login') }}">
     @csrf
 
-    <div>
-        <label>Username</label><br>
-        <input type="text" name="username" required>
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" required>
     </div>
 
-    <br>
-
-    <div>
-        <label>Password</label><br>
-        <input type="password" name="password" required>
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" required>
     </div>
 
-    <br>
-
-    <button type="submit">Login</button>
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Login</button>
+    </div>
 </form>
 
-</body>
-</html>
+@endsection
