@@ -220,8 +220,6 @@
                                         <option value="Bidang E-Government">Bidang E-Government</option>
                                         <option value="Bidang Infokom">Bidang Infokom</option>
                                         <option value="Bidang TIK">Bidang TIK</option>
-                                        <option value="Bagian Kepegawaian">Bagian Kepegawaian</option>
-                                        <option value="Bagian Perencanaan">Bagian Perencanaan</option>
                                     </select>
                                 </div>
                             </div>
