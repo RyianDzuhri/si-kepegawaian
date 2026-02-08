@@ -5,6 +5,11 @@
 <title>Biodata Pegawai</title>
 
 <style>
+
+.bg-pensiun { background-color: #dc3545; color: white; } /* Merah */
+.bg-persiapan { background-color: #ffc107; color: black; } /* Kuning */
+.bg-aktif { background-color: #198754; color: white; } /* Hijau */
+
 body {
     font-family: Arial, sans-serif;
     font-size: 11pt;
@@ -158,11 +163,21 @@ h2 {
 
 @foreach($pegawai as $p)
 
+    {{-- 1. SISIPKAN LOGIKA HITUNG UMUR DI SINI (DI DALAM LOOP) --}}
+    @php
+        $batasPensiun = 58; // Sesuaikan jika ada aturan khusus
+        $tglLahir = \Carbon\Carbon::parse($p->tanggal_lahir);
+        $tglPensiun = $tglLahir->copy()->addYears($batasPensiun);
+        $hariIni = \Carbon\Carbon::now();
+        
+        $usia = $tglLahir->age;
+        $sudahPensiun = $hariIni->greaterThanOrEqualTo($tglPensiun);
+        $masaPersiapan = $hariIni->diffInMonths($tglPensiun) <= 12 && !$sudahPensiun;
+    @endphp
+
 <div class="container">
 
-    <!-- FOTO + NAMA -->
     <div class="header-center">
-
         @if($p->foto_profil && file_exists(public_path('storage/' . $p->foto_profil)))
             <img src="{{ public_path('storage/' . $p->foto_profil) }}" class="profile-img">
         @else
@@ -174,10 +189,8 @@ h2 {
         @if($p->nip)
             <div class="nip-badge">{{ $p->nip }}</div>
         @endif
-
     </div>
 
-    <!-- DATA -->
     <div class="section-title">Informasi Pribadi & Jabatan</div>
 
     <table class="detail-table">
@@ -186,7 +199,7 @@ h2 {
             <td class="separator">:</td>
             <td class="value">
                 {{ $p->tempat_lahir }},
-                {{ \Carbon\Carbon::parse($p->tanggal_lahir)->translatedFormat('d F Y') }}
+                {{ $tglLahir->translatedFormat('d F Y') }}
             </td>
         </tr>
 
@@ -202,14 +215,7 @@ h2 {
             <td class="label">Status Kepegawaian</td>
             <td class="separator">:</td>
             <td class="value">
-                @php
-                $badgeClass = match($p->jenis_pegawai) {
-                    'PNS' => 'bg-pns',
-                    'PPPK' => 'bg-pppk',
-                    default => 'bg-honorer',
-                };
-                @endphp
-                <span class="badge {{ $badgeClass }}">{{ $p->jenis_pegawai }}</span>
+                <span class="badge bg-secondary">{{ $p->jenis_pegawai }}</span>
             </td>
         </tr>
 
@@ -236,9 +242,41 @@ h2 {
             <td class="separator">:</td>
             <td class="value">{{ $p->pendidikan_terakhir ?? '-' }}</td>
         </tr>
+
+        {{-- 2. TAMBAHKAN BARIS INFORMASI UMUR DI SINI --}}
+        <tr>
+            <td class="label" style="color: #000;">Usia Saat Ini</td> {{-- Hitamkan agar tegas --}}
+            <td class="separator">:</td>
+            <td class="value">{{ $usia }} Tahun</td>
+        </tr>
+
+        <tr>
+            <td class="label" style="color: #000;">Batas Pensiun</td>
+            <td class="separator">:</td>
+            <td class="value">
+                {{ $batasPensiun }} Tahun 
+                <span style="font-weight: normal; color: #666; font-size: 10pt;">
+                    ({{ $tglPensiun->translatedFormat('d F Y') }})
+                </span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label" style="color: #000;">Status</td>
+            <td class="separator">:</td>
+            <td class="value">
+                @if($sudahPensiun)
+                    <span class="badge bg-pensiun">SUDAH PENSIUN</span>
+                @elseif($masaPersiapan)
+                    <span class="badge bg-persiapan">PERSIAPAN PENSIUN (MPP)</span>
+                @else
+                    <span class="badge bg-aktif">AKTIF</span>
+                @endif
+            </td>
+        </tr>
+
     </table>
 
-    <!-- TMT -->
     <div class="tmt-box">
         <table class="tmt-table">
             <tr>

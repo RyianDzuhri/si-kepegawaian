@@ -2,6 +2,55 @@
 
 @section('content')
 
+
+{{-- LOGIKA HITUNG PENSIUN --}}
+@php
+    use Carbon\Carbon;
+
+    // 1. Tentukan Batas Usia Pensiun (BUP)
+    // Default 58 tahun
+    $batasPensiun = 58; 
+    
+    // 2. Ambil tanggal lahir (Pastikan nama kolom di database sesuai, misal: tanggal_lahir)
+    $tglLahir = Carbon::parse($pegawai->tanggal_lahir);
+    
+    // 3. Hitung tanggal resmi pensiun (Tanggal Lahir + 58 Tahun)
+    $tglPensiun = $tglLahir->copy()->addYears($batasPensiun);
+    
+    // 4. Hitung sisa waktu
+    $hariIni = Carbon::now();
+    $sudahPensiun = $hariIni->greaterThanOrEqualTo($tglPensiun);
+    $masaPersiapan = $hariIni->diffInMonths($tglPensiun) <= 12 && !$sudahPensiun; // Warning jika kurang dari 1 tahun
+@endphp
+
+{{-- ALERT STATUS PENSIUN --}}
+@if($sudahPensiun)
+    <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4" role="alert">
+        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+        <div>
+            <h5 class="alert-heading fw-bold mb-1">PEGAWAI SUDAH MEMASUKI MASA PENSIUN</h5>
+            <p class="mb-0">
+                Pegawai ini telah melewati batas usia pensiun <strong>{{ $batasPensiun }} tahun</strong> pada tanggal 
+                <strong>{{ $tglPensiun->translatedFormat('d F Y') }}</strong>.
+            </p>
+        </div>
+    </div>
+@elseif($masaPersiapan)
+    <div class="alert alert-warning d-flex align-items-center shadow-sm mb-4" role="alert">
+        <i class="fas fa-clock fa-2x me-3"></i>
+        <div>
+            <h5 class="alert-heading fw-bold mb-1">MASA PERSIAPAN PENSIUN (MPP)</h5>
+            <p class="mb-0">
+                Pegawai ini akan pensiun dalam <strong>{{ $hariIni->diffForHumans($tglPensiun, ['parts' => 2]) }}</strong> 
+                (Tanggal: {{ $tglPensiun->translatedFormat('d F Y') }}).
+            </p>
+        </div>
+    </div>
+@endif
+
+{{-- LANJUTKAN DENGAN KONTEN HALAMAN YANG SUDAH ADA DI BAWAH INI --}}
+<div class="row"></div>
+
 <div class="container">
     
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -49,7 +98,7 @@
                                     <td width="5%">:</td>
                                     <td class="fw-semibold">
                                         {{ $pegawai->tempat_lahir }}, 
-                                        {{ \Carbon\Carbon::parse($pegawai->tanggal_lahir)->isoFormat('D MMMM Y') }}
+                                        {{ Carbon::parse($pegawai->tanggal_lahir)->isoFormat('D MMMM Y') }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -82,17 +131,46 @@
                                     <td>:</td>
                                     <td>{{ $pegawai->pendidikan_terakhir }}</td>
                                 </tr>
+                                <tr>
+                                <tr>
+                                <td class="text-muted">Usia Saat Ini</td>
+                                <td>:</td>
+                                <td class="fw-semibold">{{ $tglLahir->age }} Tahun</td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-muted">Batas Pensiun</td>
+                                <td>:</td>
+                                <td class="fw-semibold">
+                                    {{ $batasPensiun }} Tahun 
+                                    <span class="text-secondary small">({{ $tglPensiun->translatedFormat('d F Y') }})</span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-muted">Status</td>
+                                <td>:</td>
+                                <td>
+                                    @if($sudahPensiun)
+                                        <span class="badge bg-danger">PENSIUN</span>
+                                    @elseif($masaPersiapan)
+                                        <span class="badge bg-warning text-dark">PERSIAPAN PENSIUN</span>
+                                    @else
+                                        <span class="badge bg-success">AKTIF</span>
+                                    @endif
+                                </td>
+                            </tr>
                             </table>
 
                             <div class="alert alert-light border mt-3 d-flex align-items-center">
                                 <i class="fas fa-info-circle text-primary me-3 fs-4"></i>
                                 <div>
                                     <small class="text-muted d-block">TMT Pangkat Terakhir:</small>
-                                    <strong>{{ $pegawai->tmt_pangkat_terakhir ? \Carbon\Carbon::parse($pegawai->tmt_pangkat_terakhir)->isoFormat('D MMMM Y') : '-' }}</strong>
+                                    <strong>{{ $pegawai->tmt_pangkat_terakhir ? Carbon::parse($pegawai->tmt_pangkat_terakhir)->isoFormat('D MMMM Y') : '-' }}</strong>
                                 </div>
                                 <div class="ms-5">
                                     <small class="text-muted d-block">TMT Gaji Berkala Terakhir:</small>
-                                    <strong>{{ $pegawai->tmt_gaji_berkala_terakhir ? \Carbon\Carbon::parse($pegawai->tmt_gaji_berkala_terakhir)->isoFormat('D MMMM Y') : '-' }}</strong>
+                                    <strong>{{ $pegawai->tmt_gaji_berkala_terakhir ? Carbon::parse($pegawai->tmt_gaji_berkala_terakhir)->isoFormat('D MMMM Y') : '-' }}</strong>
                                 </div>
                             </div>
 
