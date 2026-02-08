@@ -121,8 +121,11 @@
                 </span>
                 
                 <div class="d-flex align-items-center">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" class="rounded-circle me-2" width="35" height="35">
-                    <span class="fw-semibold">Administrator</span>
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(substr(Auth::user()->username ?? 'U', 0, 2)) }}&background=0D8ABC&color=fff" 
+                        class="rounded-circle me-2" 
+                        width="35" 
+                        height="35">
+                    <span class="fw-semibold">{{ Auth::user()->username ?? '-' }}</span>
                 </div>
             </div>
         </nav>

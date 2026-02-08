@@ -22,7 +22,10 @@
                     <div class="row">
                         <div class="col-md-3 text-center border-end">
                             @if(!empty($pegawai->foto_profil))
-                                <img src="{{ asset('storage/' . $pegawai->foto_profil) }}" class="img-thumbnail rounded-circle mb-3" style="width: 180px; height: 180px; object-fit: cover;">
+                                <img src="{{ asset('storage/' . $pegawai->foto_profil) }}" 
+                                alt="Foto Profil"
+                                class="rounded-circle shadow"
+                                style="width: 150px; height: 150px; object-fit: cover; object-position: center;">
                             @else
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode($pegawai->nama) }}&background=0D8ABC&color=fff&size=200" class="img-thumbnail rounded-circle mb-3" style="width: 180px; height: 180px;">
                             @endif
