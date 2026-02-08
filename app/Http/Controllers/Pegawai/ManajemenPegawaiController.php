@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pegawai\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ManajemenPegawaiController extends Controller
 {
@@ -157,5 +158,24 @@ class ManajemenPegawaiController extends Controller
         $pegawai->delete();
 
         return redirect()->route('manajemen-pegawai')->with('success', 'Data pegawai berhasil dihapus');
+    }
+
+    public function exportPdf()
+    {
+        // 1. Naikkan limit waktu & memori (Penting untuk bulk download)
+        ini_set('max_execution_time', 600); 
+        ini_set('memory_limit', '512M');
+
+        // 2. Ambil Data
+        $pegawai = Pegawai::orderBy('nama', 'asc')->get();
+
+        // 3. Load View PDF Profil Baru
+        $pdf = Pdf::loadView('pegawai.pdf_profil', compact('pegawai'));
+        
+        // 4. Set Kertas PORTRAIT (Tegak) agar pas 1 halaman per orang
+        $pdf->setPaper('a4', 'portrait');
+
+        // 5. Download
+        return $pdf->download('Data_Profil_Pegawai_'.date('Y-m-d').'.pdf');
     }
 }

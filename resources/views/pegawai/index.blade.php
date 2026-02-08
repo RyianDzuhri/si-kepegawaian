@@ -2,6 +2,28 @@
 
 @section('content')
 
+{{-- STYLE KHUSUS UNTUK TOMBOL MELAYANG --}}
+<style>
+    .btn-floating {
+        position: fixed;      /* Kunci: Membuat elemen tetap di layar */
+        bottom: 30px;         /* Jarak dari bawah layar */
+        right: 30px;          /* Jarak dari kanan layar */
+        z-index: 9999;        /* Pastikan tombol ada di atas elemen lain */
+        border-radius: 50px;  /* Membuat sudut membulat (bentuk pil) */
+        padding: 12px 25px;   /* Ukuran tombol lebih lega */
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4); /* Efek bayangan merah */
+        transition: all 0.3s ease; /* Animasi halus saat hover */
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    /* Efek saat mouse diarahkan ke tombol */
+    .btn-floating:hover {
+        transform: translateY(-5px); /* Tombol naik sedikit */
+        box-shadow: 0 8px 25px rgba(220, 53, 69, 0.6); /* Bayangan makin tebal */
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h3 class="fw-bold text-dark">Data Pegawai</h3>
@@ -12,8 +34,7 @@
     </a>
 </div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body">
+<div class="card shadow-sm border-0 mb-5"> <div class="card-body">
         
         <form action="{{ url()->current() }}" method="GET"> 
             <div class="row mb-4 g-2">
@@ -146,8 +167,15 @@
         <div class="d-flex justify-content-end mt-3">
             {{ $pegawai->withQueryString()->links() }}
         </div>
+        
+        {{-- TOMBOL LAMA DIHAPUS DARI SINI --}}
 
     </div>
 </div>
+
+{{-- TOMBOL BARU: EXPORT PDF FLOATING --}}
+<a href="{{ route('export-pdf-pegawai') }}" class="btn btn-danger btn-floating" target="_blank">
+    <i class="fas fa-file-pdf me-2"></i> Export PDF
+</a>
 
 @endsection
