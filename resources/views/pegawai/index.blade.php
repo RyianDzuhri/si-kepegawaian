@@ -91,7 +91,9 @@
                 </thead>
                 <tbody>
                     @forelse ($pegawai as $index => $item)
-                    <tr>
+                    {{-- UBAH BAGIAN INI: Tambahkan onclick dan style --}}
+                    <tr onclick="window.location='{{ route('tampil-pegawai', $item->id) }}'" style="cursor: pointer;">
+                        
                         <td>{{ $pegawai->firstItem() + $index }}</td>
                         <td>
                             <div class="d-flex align-items-center">
@@ -127,8 +129,12 @@
                             @endphp
                             <span class="badge {{ $badgeClass }} bg-opacity-10 px-3 py-2">{{ $item->jenis_pegawai }}</span>
                         </td>
-                        <td class="text-end pe-3">
+
+                        {{-- UBAH BAGIAN INI: Tambahkan event.stopPropagation() --}}
+                        {{-- Agar saat tombol Edit/Hapus ditekan, tidak ikut membuka detail --}}
+                        <td class="text-end pe-3" onclick="event.stopPropagation()">
                             <div class="btn-group" role="group">
+                                {{-- Tombol Detail (Opsional, bisa dihapus jika sudah tidak perlu) --}}
                                 <a href="{{ route('tampil-pegawai', ['id' => $item->id]) }}" class="btn btn-sm btn-outline-info" title="Detail">
                                     <i class="fas fa-eye"></i>
                                 </a>
