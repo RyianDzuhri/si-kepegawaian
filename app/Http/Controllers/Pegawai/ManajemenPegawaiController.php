@@ -7,13 +7,13 @@ use App\Models\Pegawai\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Intervention\Image\Facades\Image; // WAJIB: Import Library Image
 
 class ManajemenPegawaiController extends Controller
 {
     public function index(Request $request)
     {
         // 1. Ambil daftar Unit Kerja Unik untuk dropdown filter
-        // Menggunakan distinct() agar tidak ada nama unit kerja yang sama muncul 2x
         $listUnitKerja = Pegawai::select('unit_kerja')
             ->whereNotNull('unit_kerja')
             ->distinct()
@@ -23,7 +23,7 @@ class ManajemenPegawaiController extends Controller
         // 2. Mulai Query Builder
         $query = Pegawai::query();
 
-        // 3. Logika Pencarian (NIP, NIK, atau Nama)
+        // 3. Logika Pencarian
         if ($request->filled('q')) {
             $search = $request->input('q');
             $query->where(function($q) use ($search) {
@@ -38,12 +38,11 @@ class ManajemenPegawaiController extends Controller
             $query->where('jenis_pegawai', $request->input('status'));
         }
 
-        // 5. Filter Unit Kerja (Baru)
+        // 5. Filter Unit Kerja
         if ($request->filled('unit_kerja')) {
             $query->where('unit_kerja', $request->input('unit_kerja'));
         }
 
-        // Ambil data dengan pagination
         $pegawai = $query->latest()->paginate(10); 
 
         return view('pegawai.index', compact('pegawai', 'listUnitKerja'));
@@ -56,7 +55,7 @@ class ManajemenPegawaiController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi Data Lengkap
+        // Validasi
         $data = $request->validate([
             'nik' => 'required|numeric|digits:16|unique:pegawai,nik',
             'nip' => 'nullable|string|max:20|unique:pegawai,nip',
@@ -75,15 +74,26 @@ class ManajemenPegawaiController extends Controller
             'pendidikan_terakhir' => 'required|string|max:100',
             'tmt_pangkat_terakhir' => 'required|date',
             'tmt_gaji_berkala_terakhir' => 'required|date',
-            'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            // Kita hapus validasi 'image' karena yang dikirim string base64
+            'foto_cropped' => 'nullable|string', 
         ]);
 
-        // Upload Foto
-        if ($request->hasFile('foto_profil')) {
-            $file = $request->file('foto_profil');
-            $prefix = $request->nip ? $request->nip : $request->nik;
-            $fileName = $prefix . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $data['foto_profil'] = $file->storeAs('foto_pegawai', $fileName, 'public');
+        // LOGIKA SIMPAN FOTO HASIL CROP (BASE64)
+        if ($request->filled('foto_cropped')) {
+            // 1. Decode string Base64 menjadi Image
+            $image = Image::make($request->foto_cropped);
+            
+            // 2. Buat nama file unik
+            $fileName = time() . '_' . uniqid() . '.png';
+            
+            // 3. Tentukan path penyimpanan (folder foto_pegawai di public disk)
+            $path = 'foto_pegawai/' . $fileName;
+
+            // 4. Simpan file ke storage (Encode ke PNG)
+            Storage::disk('public')->put($path, (string) $image->encode('png'));
+
+            // 5. Masukkan path ke array data untuk disimpan ke DB
+            $data['foto_profil'] = $path;
         }
 
         Pegawai::create($data);
@@ -125,20 +135,26 @@ class ManajemenPegawaiController extends Controller
             'pendidikan_terakhir' => 'required|string|max:100',
             'tmt_pangkat_terakhir' => 'required|date',
             'tmt_gaji_berkala_terakhir' => 'required|date',
-            'foto_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'foto_cropped' => 'nullable|string',
         ]);
 
-        if ($request->hasFile('foto_profil')) {
-            // Hapus foto lama
+        // LOGIKA UPDATE FOTO HASIL CROP
+        if ($request->filled('foto_cropped')) {
+            // 1. Hapus foto lama jika ada
             if ($pegawai->foto_profil && Storage::disk('public')->exists($pegawai->foto_profil)) {
                 Storage::disk('public')->delete($pegawai->foto_profil);
             }
-            // Upload baru
-            $file = $request->file('foto_profil');
-            $prefix = $request->nip ? $request->nip : $request->nik;
-            $fileName = $prefix . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $data['foto_profil'] = $file->storeAs('foto_pegawai', $fileName, 'public');
+
+            // 2. Decode & Simpan Foto Baru
+            $image = Image::make($request->foto_cropped);
+            $fileName = time() . '_' . uniqid() . '.png';
+            $path = 'foto_pegawai/' . $fileName;
+
+            Storage::disk('public')->put($path, (string) $image->encode('png'));
+
+            $data['foto_profil'] = $path;
         } else {
+            // Jika tidak ada foto baru, jangan update field foto_profil (pakai yang lama)
             unset($data['foto_profil']);
         }
 
@@ -162,20 +178,14 @@ class ManajemenPegawaiController extends Controller
 
     public function exportPdf()
     {
-        // 1. Naikkan limit waktu & memori (Penting untuk bulk download)
         ini_set('max_execution_time', 600); 
         ini_set('memory_limit', '512M');
 
-        // 2. Ambil Data
         $pegawai = Pegawai::orderBy('nama', 'asc')->get();
 
-        // 3. Load View PDF Profil Baru
         $pdf = Pdf::loadView('pegawai.pdf_profil', compact('pegawai'));
-        
-        // 4. Set Kertas PORTRAIT (Tegak) agar pas 1 halaman per orang
         $pdf->setPaper('a4', 'portrait');
 
-        // 5. Download
         return $pdf->download('Data_Profil_Pegawai_'.date('Y-m-d').'.pdf');
     }
 }

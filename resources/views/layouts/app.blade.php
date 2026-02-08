@@ -8,7 +8,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-<style>
+    {{-- TEMPAT MENAMPUNG CSS TAMBAHAN (Seperti Cropper.js) --}}
+    @stack('styles')
+
+    <style>
         body {
             background-color: #f5f7fa;
             overflow-x: hidden;
@@ -16,7 +19,6 @@
         
         /* Gaya Sidebar */
         .sidebar {
-            /* UBAH DI SINI: */
             height: 100vh; /* Tinggi pas 1 layar penuh */
             position: sticky; /* Membuat elemen menempel */
             top: 0; /* Menempel di bagian atas layar */
@@ -28,7 +30,7 @@
             z-index: 100; /* Memastikan sidebar di atas elemen lain */
         }
         
-        /* Custom Scrollbar untuk Sidebar (Opsional - biar lebih rapi) */
+        /* Custom Scrollbar untuk Sidebar */
         .sidebar::-webkit-scrollbar {
             width: 5px;
         }
@@ -67,7 +69,6 @@
         .main-content {
             width: 100%;
             padding: 0;
-            /* Opsional: Tambahkan min-height agar footer tidak naik jika konten sedikit */
             min-height: 100vh; 
         }
     </style>
@@ -76,25 +77,25 @@
 
 <div class="d-flex">
     
+    {{-- SIDEBAR --}}
     <div class="sidebar d-flex flex-column flex-shrink-0 p-0" style="width: 260px;">
         <div class="sidebar-header">
             <h5 class="mb-0 fw-bold"><i class="fas fa-building me-2"></i>SI-PEGAWAI</h5>
-            
             <small class="text-light opacity-75">Manajemen Kepegawaian</small>
         </div>
         
         <div class="mt-3">
-            <a href="{{ route('dashboard') }}">
+            <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="fas fa-tachometer-alt me-2" style="width: 20px;"></i> Dashboard
             </a>
 
             <div class="text-uppercase text-light opacity-50 px-3 mt-4 mb-2" style="font-size: 11px; letter-spacing: 1px;">Menu Utama</div>
 
-            <a href="{{ route('manajemen-pegawai') }}">
+            <a href="{{ route('manajemen-pegawai') }}" class="{{ request()->routeIs('manajemen-pegawai*') ? 'active' : '' }}">
                 <i class="fas fa-users me-2" style="width: 20px;"></i> Data Pegawai
             </a>
 
-            <a href="{{ route('arsip-sk') }}">
+            <a href="{{ route('arsip-sk') }}" class="{{ request()->routeIs('arsip-sk*') ? 'active' : '' }}">
                 <i class="fas fa-file-invoice me-2" style="width: 20px;"></i> Arsip SK
             </a>
         </div>
@@ -102,16 +103,15 @@
         <div class="mt-auto p-3">
             <form method="POST" action="{{ route('logout') }}" id="logout-form">
                 @csrf
-
                 <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                 class="d-flex align-items-center text-danger rounded bg-dark bg-opacity-25 p-2 text-decoration-none">
-
                     <i class="fas fa-sign-out-alt me-2"></i> Logout
                 </a>
             </form>
         </div>
     </div>
 
+    {{-- KONTEN UTAMA --}}
     <div class="main-content">
         
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
@@ -146,6 +146,9 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- TEMPAT MENAMPUNG SCRIPT JAVASCRIPT TAMBAHAN (Seperti Logic Cropper) --}}
+@stack('scripts')
 
 </body>
 </html>
