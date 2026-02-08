@@ -72,8 +72,8 @@ class ManajemenPegawaiController extends Controller
             'jenis_pegawai' => 'required|string|max:50',
             'golongan' => 'nullable|string|max:20',
             'pendidikan_terakhir' => 'required|string|max:100',
-            'tmt_pangkat_terakhir' => 'required|date',
-            'tmt_gaji_berkala_terakhir' => 'required|date',
+            'tmt_pangkat_terakhir' => 'nullable|date',
+            'tmt_gaji_berkala_terakhir' => 'nullable|date',
             // Kita hapus validasi 'image' karena yang dikirim string base64
             'foto_cropped' => 'nullable|string', 
         ]);
@@ -133,8 +133,8 @@ class ManajemenPegawaiController extends Controller
             'jenis_pegawai' => 'required|string|max:50',
             'golongan' => 'nullable|string|max:20',
             'pendidikan_terakhir' => 'required|string|max:100',
-            'tmt_pangkat_terakhir' => 'required|date',
-            'tmt_gaji_berkala_terakhir' => 'required|date',
+            'tmt_pangkat_terakhir' => 'nullable|date',
+            'tmt_gaji_berkala_terakhir' => 'nullable|date',
             'foto_cropped' => 'nullable|string',
         ]);
 
