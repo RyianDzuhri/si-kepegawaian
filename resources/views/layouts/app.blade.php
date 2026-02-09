@@ -150,5 +150,25 @@
 {{-- TEMPAT MENAMPUNG SCRIPT JAVASCRIPT TAMBAHAN (Seperti Logic Cropper) --}}
 @stack('scripts')
 
-</body>
-</html>
+
+
+{{-- SCRIPT ANTI SPAM SUBMIT (GLOBAL) --}}
+    <script>
+        function disableBtnSubmit(form) {
+            // Cari tombol submit di dalam form yang sedang ditekan
+            var btn = form.querySelector('button[type="submit"]');
+            
+            if (btn) {
+                // Matikan tombol
+                btn.disabled = true;
+                
+                // Ubah tampilan tombol jadi loading (Pakai Spinner Bootstrap)
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+            }
+            
+            // Izinkan form untuk lanjut kirim data
+            return true; 
+        }
+    </script>
+
+</body> </html>

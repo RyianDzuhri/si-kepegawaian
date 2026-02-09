@@ -82,7 +82,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('simpan-pegawai') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('simpan-pegawai') }}" method="POST" enctype="multipart/form-data" onsubmit="return disableBtnSubmit(this)"> {{-- <--- TAMBAHKAN INI --}}>
                         @csrf
 
                         <div class="form-section">

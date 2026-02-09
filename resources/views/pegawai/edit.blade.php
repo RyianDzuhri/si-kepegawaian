@@ -82,7 +82,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('update-pegawai', ['id' => $pegawai->id]) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('update-pegawai', ['id' => $pegawai->id]) }}" method="POST" enctype="multipart/form-data" onsubmit="return disableBtnSubmit(this)"> {{-- <--- TAMBAHKAN INI --}}>
                         @csrf 
                         @method('PUT') 
 
