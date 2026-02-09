@@ -6,156 +6,157 @@
 
 <style>
 
-.bg-pensiun { background-color: #dc3545; color: white; } /* Merah */
-.bg-persiapan { background-color: #ffc107; color: black; } /* Kuning */
-.bg-aktif { background-color: #198754; color: white; } /* Hijau */
+    .bg-pensiun { background-color: #dc3545; color: white; } /* Merah */
+    .bg-persiapan { background-color: #ffc107; color: black; } /* Kuning */
+    .bg-aktif { background-color: #198754; color: white; } /* Hijau */
 
-body {
-    font-family: Arial, sans-serif;
-    font-size: 11pt;
-    color: #333;
-}
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 11pt;
+        color: #333;
+    }
 
-.container {
-    width: 100%;
-    padding: 20px;
-}
+    .container {
+        width: 100%;
+        padding: 20px;
+    }
 
-/* Header Tengah */
-.header-center {
-    text-align: center;
-    margin-bottom: 20px;
-}
+    /* Header Tengah */
+    .header-center {
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-/* Foto */
-.profile-img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid #0d6efd;
-    padding: 3px;
-    margin-bottom: 10px;
-}
+    /* Foto */
+    .profile-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid #0d6efd;
+        padding: 3px;
+        margin-bottom: 10px;
+    }
 
-.no-pic {
-    width: 150px;
-    height: 150px;
-    line-height: 150px;
-    border-radius: 50%;
-    background-color: #eee;
-    color: #888;
-    font-weight: bold;
-    margin: 0 auto 10px auto;
-    border: 5px solid #0d6efd;
-}
+    .no-pic {
+        width: 150px;
+        height: 150px;
+        line-height: 150px;
+        border-radius: 50%;
+        background-color: #eee;
+        color: #888;
+        font-weight: bold;
+        margin: 0 auto 10px auto;
+        border: 5px solid #0d6efd;
+    }
 
-/* Nama */
-h2 {
-    font-size: 18pt;
-    margin: 5px 0;
-    color: #2c3e50;
-}
+    /* Nama */
+    h2 {
+        font-size: 18pt;
+        margin: 5px 0;
+        color: #2c3e50;
+    }
 
-/* NIP */
-.nip-badge {
-    display: inline-block;
-    background-color: #0d6efd;
-    color: white;
-    padding: 5px 15px;
-    border-radius: 5px;
-    font-weight: bold;
-    margin-top: 5px;
-    font-size: 10pt;
-}
+    /* NIP */
+    .nip-badge {
+        display: inline-block;
+        background-color: #0d6efd;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 5px;
+        font-size: 10pt;
+    }
 
-/* Section Title */
-.section-title {
-    font-size: 12pt;
-    font-weight: bold;
-    color: #555;
-    text-transform: uppercase;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 5px;
-    margin: 25px 0 15px 0;
-}
+    /* Section Title */
+    .section-title {
+        font-size: 12pt;
+        font-weight: bold;
+        color: #555;
+        text-transform: uppercase;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 5px;
+        margin: 25px 0 15px 0;
+    }
 
-/* Badge */
-.badge {
-    padding: 3px 8px;
-    border-radius: 4px;
-    color: white;
-    font-size: 9pt;
-    font-weight: bold;
-}
-.bg-pns { background-color: #0dcaf0; }
-.bg-pppk { background-color: #ffc107; color: #000; }
-.bg-honorer { background-color: #6c757d; }
+    /* Badge */
+    .badge {
+        padding: 3px 8px;
+        border-radius: 4px;
+        color: white;
+        font-size: 9pt;
+        font-weight: bold;
+    }
+    .bg-pns { background-color: #0dcaf0; }
+    .bg-pppk { background-color: #ffc107; color: #000; }
+    .bg-honorer { background-color: #6c757d; }
 
-/* Detail Table */
-.detail-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+    /* Detail Table */
+    .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-.detail-table td {
-    padding: 6px 0;
-    vertical-align: top;
-}
+    .detail-table td {
+        padding: 6px 0;
+        vertical-align: top;
+    }
 
-.label {
-    width: 180px;
-    color: #666;
-}
+    .label {
+        width: 180px;
+        color: #666;
+    }
 
-.separator {
-    width: 20px;
-    text-align: center;
-}
+    .separator {
+        width: 20px;
+        text-align: center;
+    }
 
-.value {
-    font-weight: bold;
-}
+    .value {
+        font-weight: bold;
+    }
 
-/* TMT Box */
-.tmt-box {
-    margin-top: 30px;
-    border: 1px solid #cfe2ff;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-}
+    /* TMT Box */
+    .tmt-box {
+        margin-top: 30px;
+        border: 1px solid #cfe2ff;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+    }
 
-.tmt-table {
-    width: 100%;
-}
+    .tmt-table {
+        width: 100%;
+    }
 
-.tmt-label {
-    font-size: 9pt;
-    color: #666;
-}
+    .tmt-label {
+        font-size: 9pt;
+        color: #666;
+    }
 
-.tmt-val {
-    font-size: 11pt;
-    font-weight: bold;
-    color: #2c3e50;
-}
+    .tmt-val {
+        font-size: 11pt;
+        font-weight: bold;
+        color: #2c3e50;
+    }
 
-.icon-info {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    background-color: #0d6efd;
-    color: white;
-    text-align: center;
-    border-radius: 50%;
-    font-weight: bold;
-    margin-right: 10px;
-}
+    .icon-info {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background-color: #0d6efd;
+        color: white;
+        text-align: center;
+        border-radius: 50%;
+        font-weight: bold;
+        margin-right: 10px;
+    }
 
-.page-break {
-    page-break-after: always;
-}
+    .page-break {
+        page-break-after: always;
+    }
+
 </style>
 </head>
 
@@ -215,7 +216,8 @@ h2 {
             <td class="label">Status Kepegawaian</td>
             <td class="separator">:</td>
             <td class="value">
-                <span class="badge bg-secondary">{{ $p->jenis_pegawai }}</span>
+                {{-- Hapus span badge, ganti font-weight bold saja --}}
+                <strong>{{ $p->jenis_pegawai }}</strong>
             </td>
         </tr>
 
