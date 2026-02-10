@@ -58,13 +58,26 @@
         $sudahPensiun = false;
         $masaPersiapan = false;
 
-        if ($p->jenis_pegawai != 'Honorer') {
-            // Default 58 Tahun
-            $batasPensiun = 58; 
-            // Jika PNS Golongan IV (Pembina), Pensiun 60 Tahun
+        // Cek apakah ini Pegawai Tetap (PNS/PPPK) atau Paruh Waktu yang dianggap punya pensiun
+        // Sesuaikan jika PPPK Paruh Waktu tidak dapat pensiun, masukkan ke kondisi exclude.
+        if ($p->jenis_pegawai != 'Honorer' && $p->jenis_pegawai != 'PPPK Paruh Waktu') {
+            
+            // --- LOGIKA HITUNG BATAS USIA PENSIUN (BUP) ---
+            $batasPensiun = 58; // Default (PNS Gol I-III, PPPK Gol I-XII)
+
+            // A. Cek PNS Golongan IV (Pembina) -> 60 Tahun
             if ($p->jenis_pegawai === 'PNS' && strpos($p->golongan, 'IV') === 0) {
                 $batasPensiun = 60;
             }
+
+            // B. Cek PPPK Golongan 13 ke Atas (Ahli Madya/Utama) -> 60 Tahun
+            // Daftar Golongan PPPK Tinggi: XIII, XIV, XV, XVI, XVII
+            $pppkHighGrades = ['XIII', 'XIV', 'XV', 'XVI', 'XVII'];
+            
+            if ($p->jenis_pegawai === 'PPPK' && in_array($p->golongan, $pppkHighGrades)) {
+                $batasPensiun = 60;
+            }
+            // ----------------------------------------------
             
             $tglPensiun = $tglLahir->copy()->addYears($batasPensiun);
             $sudahPensiun = $hariIni->greaterThanOrEqualTo($tglPensiun);
@@ -79,6 +92,7 @@
         }
 
         $nextKGB = '-';
+        // PPPK dan PNS dapat KGB 2 tahun sekali
         if (($p->jenis_pegawai === 'PNS' || $p->jenis_pegawai === 'PPPK') && $p->tmt_gaji_berkala_terakhir) {
             $nextKGB = \Carbon\Carbon::parse($p->tmt_gaji_berkala_terakhir)
                 ->addYears(2)->translatedFormat('d F Y');
@@ -130,8 +144,8 @@
             <td class="value">{{ $p->jabatan }}</td>
         </tr>
         
-        {{-- GOLONGAN: Sembunyikan jika Honorer --}}
-        @if($p->jenis_pegawai != 'Honorer')
+        {{-- GOLONGAN: Sembunyikan jika Honorer atau PPPK Paruh Waktu --}}
+        @if($p->jenis_pegawai != 'Honorer' && $p->jenis_pegawai != 'PPPK Paruh Waktu')
         <tr>
             <td class="label">Golongan / Ruang</td>
             <td class="separator">:</td>
@@ -152,15 +166,15 @@
             <td class="value">{{ $usia }} Tahun</td>
         </tr>
 
-        {{-- BATAS PENSIUN: HANYA MUNCUL JIKA BUKAN HONORER --}}
-        @if($p->jenis_pegawai != 'Honorer')
+        {{-- BATAS PENSIUN: HILANG JIKA HONORER / PARUH WAKTU --}}
+        @if($p->jenis_pegawai != 'Honorer' && $p->jenis_pegawai != 'PPPK Paruh Waktu')
         <tr>
             <td class="label" style="color: #000;">Batas Pensiun</td>
             <td class="separator">:</td>
             <td class="value">
                 {{ $batasPensiun }} Tahun 
                 <span style="font-weight: normal; color: #666; font-size: 10pt;">
-                    (Pensiun: {{ $tglPensiun->translatedFormat('d F Y') }})
+                    (Pensiun: {{ $tglPensiun ? $tglPensiun->translatedFormat('d F Y') : '-' }})
                 </span>
             </td>
         </tr>
@@ -170,11 +184,9 @@
             <td class="label" style="color: #000;">Status</td>
             <td class="separator">:</td>
             <td class="value">
-                @if($p->jenis_pegawai == 'Honorer')
-                    {{-- Honorer selalu AKTIF --}}
-                    <span class="badge bg-honorer">HONORER AKTIF</span>
+                @if($p->jenis_pegawai == 'Honorer' || $p->jenis_pegawai == 'PPPK Paruh Waktu')
+                    <span class="badge bg-honorer">AKTIF</span>
                 @else
-                    {{-- Logika Pensiun untuk PNS/PPPK --}}
                     @if($sudahPensiun)
                         <span class="badge bg-pensiun">SUDAH PENSIUN</span>
                     @elseif($masaPersiapan)
@@ -187,8 +199,8 @@
         </tr>
     </table>
 
-    {{-- KOTAK TMT: SEMBUNYIKAN JIKA HONORER --}}
-    @if($p->jenis_pegawai != 'Honorer')
+    {{-- KOTAK TMT: HILANG JIKA HONORER / PARUH WAKTU --}}
+    @if($p->jenis_pegawai != 'Honorer' && $p->jenis_pegawai != 'PPPK Paruh Waktu')
     <div class="tmt-box">
         <div style="font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
             <span class="icon-info">i</span> Periode Kenaikan Pangkat & Gaji
