@@ -210,7 +210,7 @@
                     {{-- Tombol Tambah SK --}}
                     {{-- Pastikan route 'tambah-sk' sudah didefinisikan --}}
                     {{-- <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-success btn-sm"> --}}
-                    <a href="#" class="btn btn-success btn-sm" onclick="alert('Fitur tambah SK akan segera aktif')">
+                    <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus-circle me-1"></i> Upload SK Baru
                     </a>
                 </div>
