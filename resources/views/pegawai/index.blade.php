@@ -175,14 +175,11 @@
             {{ $pegawai->withQueryString()->links() }}
         </div>
         
-        {{-- TOMBOL LAMA DIHAPUS DARI SINI --}}
-
     </div>
 </div>
 
-{{-- TOMBOL BARU: EXPORT PDF FLOATING --}}
-<a href="{{ route('export-pdf-pegawai') }}" class="btn btn-danger btn-floating" target="_blank">
-    <i class="fas fa-file-pdf me-2"></i> Export PDF
+<a href="{{ route('export-excel-pegawai') }}" class="btn btn-success btn-floating mb-2" target="_blank" title="Export Excel">
+    <i class="fas fa-file-excel me-2"></i> Excel
 </a>
 
 @endsection

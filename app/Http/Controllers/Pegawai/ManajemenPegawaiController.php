@@ -7,7 +7,8 @@ use App\Models\Pegawai\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Intervention\Image\Facades\Image; // WAJIB: Import Library Image
+use Intervention\Image\Facades\Image;
+use Carbon\Carbon;
 
 class ManajemenPegawaiController extends Controller
 {
@@ -74,25 +75,21 @@ class ManajemenPegawaiController extends Controller
             'pendidikan_terakhir' => 'required|string|max:100',
             'tmt_pangkat_terakhir' => 'nullable|date',
             'tmt_gaji_berkala_terakhir' => 'nullable|date',
-            // Kita hapus validasi 'image' karena yang dikirim string base64
             'foto_cropped' => 'nullable|string', 
         ]);
 
+        // --- KHUSUS JABATAN: AUTO RAPIKAN HURUF BESAR ---
+        // Contoh: "kepala dinas" -> "Kepala Dinas"
+        $data['jabatan'] = ucwords(strtolower($request->jabatan));
+
         // LOGIKA SIMPAN FOTO HASIL CROP (BASE64)
         if ($request->filled('foto_cropped')) {
-            // 1. Decode string Base64 menjadi Image
             $image = Image::make($request->foto_cropped);
-            
-            // 2. Buat nama file unik
             $fileName = time() . '_' . uniqid() . '.png';
-            
-            // 3. Tentukan path penyimpanan (folder foto_pegawai di public disk)
             $path = 'foto_pegawai/' . $fileName;
 
-            // 4. Simpan file ke storage (Encode ke PNG)
             Storage::disk('public')->put($path, (string) $image->encode('png'));
 
-            // 5. Masukkan path ke array data untuk disimpan ke DB
             $data['foto_profil'] = $path;
         }
 
@@ -138,14 +135,15 @@ class ManajemenPegawaiController extends Controller
             'foto_cropped' => 'nullable|string',
         ]);
 
+        // --- KHUSUS JABATAN: AUTO RAPIKAN HURUF BESAR ---
+        $data['jabatan'] = ucwords(strtolower($request->jabatan));
+
         // LOGIKA UPDATE FOTO HASIL CROP
         if ($request->filled('foto_cropped')) {
-            // 1. Hapus foto lama jika ada
             if ($pegawai->foto_profil && Storage::disk('public')->exists($pegawai->foto_profil)) {
                 Storage::disk('public')->delete($pegawai->foto_profil);
             }
 
-            // 2. Decode & Simpan Foto Baru
             $image = Image::make($request->foto_cropped);
             $fileName = time() . '_' . uniqid() . '.png';
             $path = 'foto_pegawai/' . $fileName;
@@ -154,7 +152,6 @@ class ManajemenPegawaiController extends Controller
 
             $data['foto_profil'] = $path;
         } else {
-            // Jika tidak ada foto baru, jangan update field foto_profil (pakai yang lama)
             unset($data['foto_profil']);
         }
 
@@ -187,5 +184,73 @@ class ManajemenPegawaiController extends Controller
         $pdf->setPaper('a4', 'portrait');
 
         return $pdf->download('Data_Profil_Pegawai_'.date('Y-m-d').'.pdf');
+    }
+
+    public function exportExcel()
+    {
+        // Ambil semua data pegawai, urutkan per Status dulu baru Nama biar rapi
+        $pegawai = Pegawai::orderBy('jenis_pegawai', 'desc')->orderBy('nama', 'asc')->get();
+
+        $data = $pegawai->map(function ($p) {
+            
+            // --- FILTER KELAYAKAN ---
+            $isEligiblePangkat = $p->jenis_pegawai === 'PNS'; 
+            $isEligibleGaji    = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
+            $isEligiblePensiun = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
+
+            // --- 1. LOGIKA PENSIUN ---
+            $tglPensiun = null;
+            $isPensiun = false;
+
+            if ($isEligiblePensiun && $p->tanggal_lahir) {
+                // DEFAULT 58 TAHUN
+                $batasPensiun = 58; 
+
+                // LOGIKA BARU: Cek jika jabatan mengandung kata "Kepala Dinas"
+                if (stripos($p->jabatan, 'Kepala Dinas') !== false) {
+                    $batasPensiun = 60;
+                }
+                
+                $tglPensiun = Carbon::parse($p->tanggal_lahir)->addYears($batasPensiun);
+                $isPensiun = Carbon::now()->addYear()->greaterThanOrEqualTo($tglPensiun);
+            }
+
+            // --- 2. LOGIKA NAIK PANGKAT (PNS Only) ---
+            $nextPangkat = null;
+            $isNaikPangkat = false;
+            
+            if ($isEligiblePangkat && $p->tmt_pangkat_terakhir) {
+                $nextPangkat = Carbon::parse($p->tmt_pangkat_terakhir)->addYears(4);
+                $isNaikPangkat = $nextPangkat->isPast() || $nextPangkat->isToday();
+            }
+
+            // --- 3. LOGIKA GAJI BERKALA (PNS & PPPK) ---
+            $nextGaji = null;
+            $isNaikGaji = false;
+            
+            if ($isEligibleGaji && $p->tmt_gaji_berkala_terakhir) {
+                $nextGaji = Carbon::parse($p->tmt_gaji_berkala_terakhir)->addYears(2);
+                $isNaikGaji = $nextGaji->isPast() || $nextGaji->isToday();
+            }
+
+            return (object) [
+                'nama' => $p->nama,
+                'nip'  => $p->nip,
+                'jenis' => $p->jenis_pegawai,
+                'golongan' => $p->golongan,
+                'jabatan' => $p->jabatan,
+                
+                'tgl_naik_pangkat' => $nextPangkat,
+                'status_pangkat' => $isNaikPangkat,
+                
+                'tgl_naik_gaji' => $nextGaji,
+                'status_gaji' => $isNaikGaji,
+
+                'tgl_pensiun' => $tglPensiun,
+                'status_pensiun' => $isPensiun
+            ];
+        });
+
+        return view('pegawai.export-excel', compact('data'));
     }
 }

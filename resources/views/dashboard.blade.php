@@ -8,11 +8,8 @@
     <p class="text-muted">Selamat datang di Sistem Informasi Kepegawaian.</p>
 </div>
 
-{{-- ==================================================== --}}
-{{-- BARIS 1: 2 KARTU UTAMA (Total Pegawai & SK)          --}}
-{{-- ==================================================== --}}
+{{-- BARIS 1: 2 KARTU UTAMA --}}
 <div class="row mb-4">
-    {{-- 1. Total Pegawai --}}
     <div class="col-md-6">
         <div class="card shadow-sm border-0 border-start border-4 border-primary h-100">
             <div class="card-body p-4">
@@ -30,7 +27,6 @@
         </div>
     </div>
 
-    {{-- 2. Arsip SK --}}
     <div class="col-md-6">
         <div class="card shadow-sm border-0 border-start border-4 border-success h-100">
             <div class="card-body p-4">
@@ -49,12 +45,8 @@
     </div>
 </div>
 
-{{-- ==================================================== --}}
-{{-- BARIS 2: 3 KARTU REMINDER (Pensiun, Pangkat, Gaji)   --}}
-{{-- ==================================================== --}}
+{{-- BARIS 2: 3 KARTU REMINDER --}}
 <div class="row mb-4">
-    
-    {{-- 3. Pensiun Tahun Ini --}}
     <div class="col-md-4">
         <div class="card shadow-sm border-0 border-start border-4 border-danger h-100">
             <div class="card-body">
@@ -72,7 +64,6 @@
         </div>
     </div>
 
-    {{-- 4. Waktunya Naik Pangkat --}}
     <div class="col-md-4">
         <div class="card shadow-sm border-0 border-start border-4 border-warning h-100">
             <div class="card-body">
@@ -80,7 +71,7 @@
                     <div>
                         <p class="text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.75rem;">Waktunya Naik Pangkat</p>
                         <h3 class="fw-bold text-warning mb-0">{{ $naikPangkatSegera }}</h3>
-                        <small class="text-muted" style="font-size: 0.7rem;">(Khusus PNS, > 4 Thn)</small>
+                        <small class="text-muted" style="font-size: 0.7rem;">(Khusus PNS)</small>
                     </div>
                     <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
                         <i class="fas fa-level-up-alt fa-lg"></i>
@@ -90,16 +81,14 @@
         </div>
     </div>
 
-    {{-- 5. Waktunya Naik Gaji Berkala --}}
     <div class="col-md-4">
         <div class="card shadow-sm border-0 border-start border-4 border-info h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.75rem;">Kenaikan Gaji Berkala</p>
-                        {{-- Warna text Info biar kebaca --}}
                         <h3 class="fw-bold text-info mb-0" style="color: #0dcaf0 !important;">{{ $naikGajiSegera }}</h3>
-                        <small class="text-muted" style="font-size: 0.7rem;">(PNS & PPPK, > 2 Thn)</small>
+                        <small class="text-muted" style="font-size: 0.7rem;">(PNS & PPPK)</small>
                     </div>
                     <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info">
                         <i class="fas fa-money-bill-wave fa-lg"></i>
@@ -108,7 +97,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 {{-- BODY: TABEL PEMBERITAHUAN --}}
@@ -121,7 +109,7 @@
         <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active fw-bold" id="pangkat-tab" data-bs-toggle="tab" data-bs-target="#pangkat" type="button" role="tab">
-                    <i class="fas fa-medal me-2"></i>Naik Pangkat
+                    <i class="fas fa-medal me-2"></i>Kenaikan Pangkat
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -149,7 +137,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Pegawai</th>
-                                <th>Jabatan & Gol</th>
+                                <th>Jabatan & Golongan</th>
                                 <th>TMT Terakhir</th>
                                 <th>Jadwal Baru</th>
                                 <th>Aksi</th>
@@ -177,7 +165,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="5" class="text-center text-muted py-5">Semua aman, tidak ada jadwal naik pangkat bulan ini.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-5">Tidak ada jadwal naik pangkat bulan ini.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -195,7 +183,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Pegawai</th>
-                                <th>Golongan</th>
+                                <th>Jabatan & Golongan</th> {{-- DISAMAKAN --}}
                                 <th>TMT Terakhir</th>
                                 <th>Jadwal Baru</th>
                                 <th>Aksi</th>
@@ -206,12 +194,13 @@
                             <tr>
                                 <td>
                                     <div class="fw-bold text-dark">{{ $p->nama }}</div>
-                                    <div class="d-flex align-items-center gap-1">
-                                        <small class="text-muted">{{ $p->nip }}</small>
-                                        <span class="badge bg-secondary" style="font-size: 0.6rem;">{{ $p->jenis_pegawai }}</span>
-                                    </div>
+                                    <small class="text-muted">{{ $p->nip }}</small>
                                 </td>
-                                <td>{{ $p->golongan }}</td>
+                                <td>
+                                    {{-- DISAMAKAN ISINYA --}}
+                                    <div class="small fw-bold">{{ $p->jabatan }}</div>
+                                    <span class="badge bg-light text-dark border">{{ $p->golongan }}</span>
+                                </td>
                                 <td>{{ \Carbon\Carbon::parse($p->tmt_gaji_berkala_terakhir)->format('d/m/Y') }}</td>
                                 <td class="text-success fw-bold">
                                     {{ \Carbon\Carbon::parse($p->tmt_gaji_berkala_terakhir)->addYears(2)->format('d/m/Y') }}
@@ -232,30 +221,31 @@
 
             {{-- TAB 3: PENSIUN --}}
             <div class="tab-pane fade" id="pensiun" role="tabpanel">
-                 <div class="alert alert-danger bg-opacity-10 border-0 d-flex align-items-center mb-3">
+                <div class="alert alert-danger bg-opacity-10 border-0 d-flex align-items-center mb-3">
                     <i class="fas fa-exclamation-triangle me-2 text-danger"></i>
-                    <div class="text-danger small">Pegawai (PNS/PPPK) yang <strong>akan pensiun dalam 1 tahun</strong> atau <strong>sudah lewat</strong>.</div>
+                    <div class="text-danger small">Pegawai yang <strong>akan pensiun dalam 1 tahun</strong> atau <strong>sudah lewat</strong>.</div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>Pegawai</th>
-                                <th>Status</th>
-                                <th>Tgl Lahir</th>
-                                <th>Usia</th>
-                                <th>Tgl Pensiun</th>
+                                <th>Jabatan & Golongan</th>
+                                <th>Tanggal Lahir</th>
+                                <th>Target Pensiun</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($listPensiun as $p)
-                            {{-- LOGIKA SUDAH DIFILTER DI CONTROLLER, DISINI TINGGAL TAMPILKAN --}}
+                            
+                            {{-- LOGIKA BARU DI DASHBOARD --}}
                             @php
                                 $batas = 58;
-                                if ($p->jenis_pegawai === 'PNS' && strpos($p->golongan, 'IV') === 0) $batas = 60;
-                                $pppkHigh = ['XIII', 'XIV', 'XV', 'XVI', 'XVII'];
-                                if ($p->jenis_pegawai === 'PPPK' && in_array($p->golongan, $pppkHigh)) $batas = 60;
+                                // Cek apakah jabatan mengandung "Kepala Dinas"
+                                if (stripos($p->jabatan, 'Kepala Dinas') !== false) {
+                                    $batas = 60;
+                                }
                             @endphp
 
                             <tr>
@@ -264,11 +254,14 @@
                                     <small class="text-muted">{{ $p->nip }}</small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark border">{{ $p->jenis_pegawai }}</span>
+                                    <div class="small fw-bold">{{ $p->jabatan }}</div>
                                     <span class="badge bg-light text-dark border">{{ $p->golongan }}</span>
                                 </td>
-                                <td>{{ \Carbon\Carbon::parse($p->tanggal_lahir)->format('d/m/Y') }}</td>
-                                <td><strong>{{ \Carbon\Carbon::parse($p->tanggal_lahir)->age }}</strong> Thn</td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($p->tanggal_lahir)->format('d/m/Y') }}
+                                    <br>
+                                    <small class="text-muted">Usia: {{ \Carbon\Carbon::parse($p->tanggal_lahir)->age }} Thn</small>
+                                </td>
                                 <td>
                                     <span class="text-danger fw-bold">
                                         {{ \Carbon\Carbon::parse($p->tanggal_lahir)->addYears($batas)->format('d/m/Y') }}
@@ -277,17 +270,18 @@
                                     <small class="text-muted" style="font-size: 0.7rem;">(BUP: {{ $batas }} Thn)</small>
                                 </td>
                                 <td>
-                                    <a href="{{ route('tampil-pegawai', $p->id) }}" class="btn btn-sm btn-outline-secondary">Detail</a>
+                                    <a href="{{ route('tampil-pegawai', $p->id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-eye"></i> Detail
+                                    </a>
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="6" class="text-center text-muted py-5">Belum ada pegawai yang masuk masa persiapan pensiun.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-5">Belum ada pegawai yang masuk masa persiapan pensiun.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
