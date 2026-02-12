@@ -204,6 +204,7 @@
                                         <option value="">-- Pilih Status --</option>
                                         <option value="PNS" {{ old('jenis_pegawai') == 'PNS' ? 'selected' : '' }}>PNS</option>
                                         <option value="PPPK" {{ old('jenis_pegawai') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                                        <option value="PPPK Paruh Waktu" {{ old('jenis_pegawai') == 'PPPK Paruh Waktu' ? 'selected' : '' }}>PPPK Paruh Waktu</option>
                                         <option value="Honorer" {{ old('jenis_pegawai') == 'Honorer' ? 'selected' : '' }}>Honorer / Kontrak</option>
                                     </select>
                                 </div>
@@ -425,7 +426,7 @@
             selectGolongan.innerHTML = '<option value="">-- Pilih Golongan --</option>';
 
             // === JIKA HONORER / KOSONG ===
-            if (selected === 'Honorer' || selected === '') {
+            if (selected === 'Honorer' || selected === 'PPPK Paruh Waktu' || selected === '') {
                 // Sembunyikan Golongan
                 wrapperGolongan.classList.remove('show');
                 selectGolongan.removeAttribute('required');

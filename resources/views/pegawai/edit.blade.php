@@ -200,6 +200,7 @@
                                         <option value="">-- Pilih Status --</option>
                                         <option value="PNS" {{ old('jenis_pegawai', $pegawai->jenis_pegawai) == 'PNS' ? 'selected' : '' }}>PNS</option>
                                         <option value="PPPK" {{ old('jenis_pegawai', $pegawai->jenis_pegawai) == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                                        <option value="PPPK Paruh Waktu" {{ old('jenis_pegawai', $pegawai->jenis_pegawai) == 'PPPK Paruh Waktu' ? 'selected' : '' }}>PPPK Paruh Waktu</option>
                                         <option value="Honorer" {{ old('jenis_pegawai', $pegawai->jenis_pegawai) == 'Honorer' ? 'selected' : '' }}>Honorer / Kontrak</option>
                                     </select>
                                 </div>
@@ -217,8 +218,6 @@
                                         <option value="Bidang E-Government">Bidang E-Government</option>
                                         <option value="Bidang Infokom">Bidang Infokom</option>
                                         <option value="Bidang TIK">Bidang TIK</option>
-                                        <option value="Bagian Kepegawaian">Bagian Kepegawaian</option>
-                                        <option value="Bagian Perencanaan">Bagian Perencanaan</option>
                                     </select>
                                 </div>
                             </div>
@@ -423,7 +422,7 @@
             selectGolongan.innerHTML = '<option value="">-- Pilih Golongan --</option>';
 
             // === JIKA HONORER / KOSONG ===
-            if (selected === 'Honorer' || selected === '') {
+            if (selected === 'Honorer' || selected === 'PPPK Paruh Waktu' || selected === '') {
                 // Sembunyikan Golongan
                 wrapperGolongan.classList.remove('show');
                 selectGolongan.removeAttribute('required');

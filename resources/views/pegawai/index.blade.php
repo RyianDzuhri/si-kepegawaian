@@ -61,6 +61,7 @@
                         <option value="">Semua Status</option>
                         <option value="PNS" {{ request('status') == 'PNS' ? 'selected' : '' }}>PNS</option>
                         <option value="PPPK" {{ request('status') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
+                        <option value="PPPK Paruh Waktu" {{ request('status') == 'PPPK Paruh Waktu' ? 'selected' : '' }}>PPPK Paruh Waktu</option>
                         <option value="Honorer" {{ request('status') == 'Honorer' ? 'selected' : '' }}>Honorer/Kontrak</option>
                     </select>
                 </div>

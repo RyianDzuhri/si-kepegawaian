@@ -2,54 +2,70 @@
 
 @section('content')
 
-
 {{-- LOGIKA HITUNG PENSIUN --}}
 @php
     use Carbon\Carbon;
 
-    // 1. Tentukan Batas Usia Pensiun (BUP)
-    // Default 58 tahun
+    // 1. Tentukan Batas Usia Pensiun (BUP) Default
     $batasPensiun = 58; 
     
-    // 2. Ambil tanggal lahir (Pastikan nama kolom di database sesuai, misal: tanggal_lahir)
-    $tglLahir = Carbon::parse($pegawai->tanggal_lahir);
-    
-    // 3. Hitung tanggal resmi pensiun (Tanggal Lahir + 58 Tahun)
-    $tglPensiun = $tglLahir->copy()->addYears($batasPensiun);
-    
-    // 4. Hitung sisa waktu
-    $hariIni = Carbon::now();
-    $sudahPensiun = $hariIni->greaterThanOrEqualTo($tglPensiun);
-    $masaPersiapan = $hariIni->diffInMonths($tglPensiun) <= 12 && !$sudahPensiun; // Warning jika kurang dari 1 tahun
+    // 2. Cek Jenis Pegawai untuk pengecualian
+    // Honorer dan PPPK Paruh Waktu dianggap tidak memiliki BUP standar
+    $isNonPensionable = in_array($pegawai->jenis_pegawai, ['Honorer', 'PPPK Paruh Waktu']);
+
+    $sudahPensiun = false;
+    $masaPersiapan = false;
+    $tglPensiun = null;
+
+    if (!$isNonPensionable && $pegawai->tanggal_lahir) {
+        // Logika Khusus: Jika PNS Golongan IV, BUP jadi 60 tahun
+        if ($pegawai->jenis_pegawai === 'PNS' && strpos($pegawai->golongan, 'IV') === 0) {
+            $batasPensiun = 60;
+        }
+        // Logika Khusus: Jika PPPK Golongan Tinggi (XIII - XVII), BUP jadi 60 tahun
+        $pppkHighGrades = ['XIII', 'XIV', 'XV', 'XVI', 'XVII'];
+        if ($pegawai->jenis_pegawai === 'PPPK' && in_array($pegawai->golongan, $pppkHighGrades)) {
+            $batasPensiun = 60;
+        }
+
+        // Hitung Tanggal Pensiun
+        $tglLahir = Carbon::parse($pegawai->tanggal_lahir);
+        $tglPensiun = $tglLahir->copy()->addYears($batasPensiun);
+        
+        // Hitung Status
+        $hariIni = Carbon::now();
+        $sudahPensiun = $hariIni->greaterThanOrEqualTo($tglPensiun);
+        // Warning jika kurang dari 1 tahun (12 bulan)
+        $masaPersiapan = $hariIni->diffInMonths($tglPensiun) <= 12 && !$sudahPensiun; 
+    }
 @endphp
 
-{{-- ALERT STATUS PENSIUN --}}
-@if($sudahPensiun)
-    <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4" role="alert">
-        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-        <div>
-            <h5 class="alert-heading fw-bold mb-1">PEGAWAI SUDAH MEMASUKI MASA PENSIUN</h5>
-            <p class="mb-0">
-                Pegawai ini telah melewati batas usia pensiun <strong>{{ $batasPensiun }} tahun</strong> pada tanggal 
-                <strong>{{ $tglPensiun->translatedFormat('d F Y') }}</strong>.
-            </p>
+{{-- ALERT STATUS PENSIUN (Hanya Tampil Jika Bukan Honorer/Paruh Waktu) --}}
+@if(!$isNonPensionable)
+    @if($sudahPensiun)
+        <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4" role="alert">
+            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+            <div>
+                <h5 class="alert-heading fw-bold mb-1">PEGAWAI SUDAH MEMASUKI MASA PENSIUN</h5>
+                <p class="mb-0">
+                    Pegawai ini telah melewati batas usia pensiun <strong>{{ $batasPensiun }} tahun</strong> pada tanggal 
+                    <strong>{{ $tglPensiun->translatedFormat('d F Y') }}</strong>.
+                </p>
+            </div>
         </div>
-    </div>
-@elseif($masaPersiapan)
-    <div class="alert alert-warning d-flex align-items-center shadow-sm mb-4" role="alert">
-        <i class="fas fa-clock fa-2x me-3"></i>
-        <div>
-            <h5 class="alert-heading fw-bold mb-1">MASA PERSIAPAN PENSIUN (MPP)</h5>
-            <p class="mb-0">
-                Pegawai ini akan pensiun dalam <strong>{{ $hariIni->diffForHumans($tglPensiun, ['parts' => 2]) }}</strong> 
-                (Tanggal: {{ $tglPensiun->translatedFormat('d F Y') }}).
-            </p>
+    @elseif($masaPersiapan)
+        <div class="alert alert-warning d-flex align-items-center shadow-sm mb-4" role="alert">
+            <i class="fas fa-clock fa-2x me-3"></i>
+            <div>
+                <h5 class="alert-heading fw-bold mb-1">MASA PERSIAPAN PENSIUN (MPP)</h5>
+                <p class="mb-0">
+                    Pegawai ini akan pensiun dalam <strong>{{ $hariIni->diffForHumans($tglPensiun, ['parts' => 2]) }}</strong> 
+                    (Tanggal: {{ $tglPensiun->translatedFormat('d F Y') }}).
+                </p>
+            </div>
         </div>
-    </div>
+    @endif
 @endif
-
-{{-- LANJUTKAN DENGAN KONTEN HALAMAN YANG SUDAH ADA DI BAWAH INI --}}
-<div class="row"></div>
 
 <div class="container">
     
@@ -58,7 +74,7 @@
             <h4 class="fw-bold text-dark mb-0">Detail Pegawai</h4>
             <p class="text-muted mb-0">Informasi lengkap dan riwayat dokumen.</p>
         </div>
-        <a href="{{ url('/pegawai') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('manajemen-pegawai') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Kembali
         </a>
     </div>
@@ -69,6 +85,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     <div class="row">
+                        {{-- KOLOM FOTO & NAMA --}}
                         <div class="col-md-3 text-center border-end">
                             @if(!empty($pegawai->foto_profil))
                                 <img src="{{ asset('storage/' . $pegawai->foto_profil) }}" 
@@ -79,8 +96,13 @@
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode($pegawai->nama) }}&background=0D8ABC&color=fff&size=200" class="img-thumbnail rounded-circle mb-3" style="width: 180px; height: 180px;">
                             @endif
 
-                            <h5 class="fw-bold mb-1">{{ $pegawai->nama }}</h5>
-                            <span class="badge bg-primary px-3 py-2 mb-2">{{ $pegawai->nip }}</span>
+                            <h5 class="fw-bold mb-1 mt-3">{{ $pegawai->nama }}</h5>
+                            
+                            @if($pegawai->nip)
+                                <span class="badge bg-primary px-3 py-2 mb-2">{{ $pegawai->nip }}</span>
+                            @else
+                                <span class="badge bg-secondary px-3 py-2 mb-2">Non-NIP</span>
+                            @endif
                             
                             <div class="d-grid gap-2 mt-3">
                                 <a href="{{ route('edit-pegawai', ['id' => $pegawai->id]) }}" class="btn btn-warning btn-sm">
@@ -89,6 +111,7 @@
                             </div>
                         </div>
 
+                        {{-- KOLOM DETAIL DATA --}}
                         <div class="col-md-9 ps-md-4">
                             <h6 class="text-uppercase text-muted border-bottom pb-2 mb-3">Informasi Pribadi & Jabatan</h6>
                             
@@ -121,47 +144,42 @@
                                     <td>:</td>
                                     <td>{{ $pegawai->jabatan }}</td>
                                 </tr>
+                                
+                                {{-- GOLONGAN (HANYA MUNCUL JIKA BUKAN HONORER/PARUH WAKTU) --}}
+                                @if(!$isNonPensionable)
                                 <tr>
                                     <td class="text-muted">Golongan / Ruang</td>
                                     <td>:</td>
                                     <td>{{ $pegawai->golongan ?? '-' }}</td>
                                 </tr>
+                                @endif
+
                                 <tr>
                                     <td class="text-muted">Pendidikan Terakhir</td>
                                     <td>:</td>
                                     <td>{{ $pegawai->pendidikan_terakhir }}</td>
                                 </tr>
                                 <tr>
+                                    <td class="text-muted">Usia Saat Ini</td>
+                                    <td>:</td>
+                                    <td class="fw-semibold">{{ Carbon::parse($pegawai->tanggal_lahir)->age }} Tahun</td>
+                                </tr>
+
+                                {{-- BATAS PENSIUN (HANYA MUNCUL JIKA BUKAN HONORER/PARUH WAKTU) --}}
+                                @if(!$isNonPensionable && $tglPensiun)
                                 <tr>
-                                <td class="text-muted">Usia Saat Ini</td>
-                                <td>:</td>
-                                <td class="fw-semibold">{{ $tglLahir->age }} Tahun</td>
-                            </tr>
-
-                            <tr>
-                                <td class="text-muted">Batas Pensiun</td>
-                                <td>:</td>
-                                <td class="fw-semibold">
-                                    {{ $batasPensiun }} Tahun 
-                                    <span class="text-secondary small">({{ $tglPensiun->translatedFormat('d F Y') }})</span>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="text-muted">Status</td>
-                                <td>:</td>
-                                <td>
-                                    @if($sudahPensiun)
-                                        <span class="badge bg-danger">PENSIUN</span>
-                                    @elseif($masaPersiapan)
-                                        <span class="badge bg-warning text-dark">PERSIAPAN PENSIUN</span>
-                                    @else
-                                        <span class="badge bg-success">AKTIF</span>
-                                    @endif
-                                </td>
-                            </tr>
+                                    <td class="text-muted">Batas Pensiun</td>
+                                    <td>:</td>
+                                    <td class="fw-semibold">
+                                        {{ $batasPensiun }} Tahun 
+                                        <span class="text-secondary small">({{ $tglPensiun->translatedFormat('d F Y') }})</span>
+                                    </td>
+                                </tr>
+                                @endif
                             </table>
 
+                            {{-- INFO TMT (HANYA MUNCUL JIKA BUKAN HONORER/PARUH WAKTU) --}}
+                            @if(!$isNonPensionable)
                             <div class="alert alert-light border mt-3 d-flex align-items-center">
                                 <i class="fas fa-info-circle text-primary me-3 fs-4"></i>
                                 <div>
@@ -173,6 +191,7 @@
                                     <strong>{{ $pegawai->tmt_gaji_berkala_terakhir ? Carbon::parse($pegawai->tmt_gaji_berkala_terakhir)->isoFormat('D MMMM Y') : '-' }}</strong>
                                 </div>
                             </div>
+                            @endif
 
                         </div>
                     </div>
@@ -180,6 +199,7 @@
             </div>
         </div>
 
+        {{-- BAGIAN DOKUMEN SK --}}
         <div class="col-md-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
@@ -187,6 +207,9 @@
                         <i class="fas fa-folder-open me-2 text-warning"></i> Arsip Dokumen SK
                     </h6>
 
+                    {{-- Tombol Tambah SK --}}
+                    {{-- Pastikan route 'tambah-sk' sudah didefinisikan --}}
+                    {{-- <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-success btn-sm"> --}}
                     <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus-circle me-1"></i> Upload SK Baru
                     </a>
@@ -206,7 +229,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($pegawai->sk as $index => $item)
+                                {{-- Pastikan relasi 'sk' ada di model Pegawai --}}
+                                {{-- @forelse($pegawai->sk as $index => $item) --}}
+                                @forelse([] as $index => $item) {{-- Placeholder array kosong agar tidak error --}}
                                 <tr>
                                     <td class="ps-4">{{ $index + 1 }}</td>
                                     <td><span class="fw-semibold">{{ $item->jenis_sk }}</span></td>
@@ -223,7 +248,6 @@
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
-                                        {{-- Fitur hapus SK belum ada rutenya, saya siapkan tombolnya saja --}}
                                         <button class="btn btn-sm btn-link text-danger p-0" onclick="alert('Fitur hapus belum diaktifkan')">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
@@ -234,9 +258,6 @@
                                     <td colspan="7" class="text-center py-5">
                                         <div class="text-muted mb-2"><i class="fas fa-folder-open fa-2x opacity-25"></i></div>
                                         <p class="text-muted mb-0">Belum ada dokumen SK yang diupload.</p>
-                                        <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-sm btn-outline-primary mt-2">
-                                            Upload Sekarang
-                                        </a>
                                     </td>
                                 </tr>
                                 @endforelse
