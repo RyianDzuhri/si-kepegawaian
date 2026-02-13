@@ -17,13 +17,15 @@
     }
     input[type="date"] { position: relative; font-family: inherit; }
     
+    /* Animasi Buka Tutup Form */
     .reveal-wrapper {
         max-height: 0; opacity: 0; overflow: hidden; transition: all 0.4s ease-in-out; transform: translateY(-10px);
     }
     .reveal-wrapper.show {
-        max-height: 250px; /* Sedikit lebih tinggi utk menampung alert TMT */
-        opacity: 1; transform: translateY(0); margin-top: 1rem;
+        max-height: 500px; /* Tinggi maksimal container saat terbuka */
+        opacity: 1; transform: translateY(0); margin-top: 1rem; margin-bottom: 0.5rem;
     }
+
     .form-section {
         background: #fff; border-left: 5px solid #0d6efd; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
         border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; transition: transform 0.2s;
@@ -53,6 +55,7 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
 
+            {{-- HEADER HALAMAN --}}
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 class="fw-bold text-dark mb-1">Tambah Pegawai Baru</h4>
@@ -66,6 +69,7 @@
             <div class="card shadow border-0 rounded-3">
                 <div class="card-body p-4 p-md-5">
 
+                    {{-- ALERT ERROR --}}
                     @if ($errors->any())
                         <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4">
                             <div class="d-flex">
@@ -85,6 +89,7 @@
                     <form action="{{ route('simpan-pegawai') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
+                        {{-- BAGIAN I: IDENTITAS --}}
                         <div class="form-section">
                             <div class="section-title">
                                 <i class="fas fa-id-card"></i> I. Identitas Pribadi
@@ -151,6 +156,7 @@
                             </div>
                         </div>
 
+                        {{-- BAGIAN II: KONTAK & FOTO --}}
                         <div class="form-section">
                             <div class="section-title">
                                 <i class="fas fa-address-book"></i> II. Kontak & Foto
@@ -172,7 +178,7 @@
                                 </div>
                             </div>
                             
-                            {{-- BAGIAN INPUT FOTO DENGAN PREVIEW CROP --}}
+                            {{-- FOTO PROFIL --}}
                             <div class="mb-0">
                                 <label class="form-label fw-semibold small text-muted">Foto Profil (Wajib Crop)</label>
                                 <div class="d-flex align-items-center gap-3 p-2 bg-light rounded border">
@@ -192,41 +198,59 @@
                             </div>
                         </div>
 
+                        {{-- BAGIAN III: DATA KEPEGAWAIAN (STRUKTUR DIPERBAIKI) --}}
                         <div class="form-section border-left-warning">
                             <div class="section-title text-dark">
                                 <i class="fas fa-briefcase"></i> III. Data Kepegawaian
                             </div>
                             
-                            <div class="row g-3 mb-3">
+                            <div class="row g-3">
+                                {{-- === KOLOM KIRI (Status & TMT) === --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold small text-muted">Status Kepegawaian <span class="text-danger">*</span></label>
-                                    <select name="jenis_pegawai" id="jenis_pegawai" class="form-select bg-light" required>
-                                        <option value="">-- Pilih Status --</option>
-                                        <option value="PNS" {{ old('jenis_pegawai') == 'PNS' ? 'selected' : '' }}>PNS</option>
-                                        <option value="PPPK" {{ old('jenis_pegawai') == 'PPPK' ? 'selected' : '' }}>PPPK</option>
-                                        <option value="PPPK Paruh Waktu" {{ old('jenis_pegawai') == 'PPPK Paruh Waktu' ? 'selected' : '' }}>PPPK Paruh Waktu</option>
-                                        <option value="Honorer" {{ old('jenis_pegawai') == 'Honorer' ? 'selected' : '' }}>Honorer / Kontrak</option>
-                                    </select>
+                                    {{-- 1. Input Status --}}
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold small text-muted">Status Kepegawaian <span class="text-danger">*</span></label>
+                                        <select name="jenis_pegawai" id="jenis_pegawai" class="form-select bg-light" required>
+                                            <option value="">-- Pilih Status --</option>
+                                            <option value="PNS" {{ old('jenis_pegawai') == 'PNS' ? 'selected' : '' }}>PNS</option>
+                                            <option value="PPPK" {{ old('jenis_pegawai') == 'PPPK' ? 'selected' : '' }}>PPPK (Penuh Waktu)</option>
+                                            <option value="PPPK Paruh Waktu" {{ old('jenis_pegawai') == 'PPPK Paruh Waktu' ? 'selected' : '' }}>PPPK Paruh Waktu</option>
+                                            <option value="Honorer" {{ old('jenis_pegawai') == 'Honorer' ? 'selected' : '' }}>Honorer / Kontrak</option>
+                                        </select>
+                                    </div>
+
+                                    {{-- 2. Input TMT Pengangkatan (Hidden Default) --}}
+                                    <div id="wrapper_tmt_pengangkatan" class="reveal-wrapper">
+                                        <div class="p-3 bg-primary bg-opacity-10 rounded border border-primary border-opacity-25">
+                                            <label class="form-label fw-bold text-primary">TMT Pengangkatan (Awal Karir) <span class="text-danger">*</span></label>
+                                            <input type="date" name="tmt_pengangkatan" id="input_tmt_pengangkatan"
+                                                   class="form-control border-primary" 
+                                                   value="{{ old('tmt_pengangkatan') }}">
+                                            <div class="form-text text-muted small mt-1">
+                                                <i class="fas fa-info-circle me-1"></i> Tanggal pertama kali diangkat (CPNS/PPPK/Kontrak Awal).
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {{-- === KOLOM KANAN (Unit & Sub Unit) === --}}
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold small text-muted">Unit Kerja / Dinas <span class="text-danger">*</span></label>
-                                    
-                                    <input type="hidden" name="unit_kerja" id="final_unit_kerja" value="{{ old('unit_kerja') }}">
+                                    {{-- 1. Input Unit Kerja --}}
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold small text-muted">Unit Kerja / Dinas <span class="text-danger">*</span></label>
+                                        <input type="hidden" name="unit_kerja" id="final_unit_kerja" value="{{ old('unit_kerja') }}">
+                                        <select id="unit_kerja_utama" class="form-select" required>
+                                            <option value="">-- Pilih Bidang/Bagian --</option>
+                                            <option value="Kepala Dinas">Kepala Dinas</option>
+                                            <option value="Sekretaris Dinas">Sekretaris Dinas</option>
+                                            <option value="Sekretariat">Sekretariat</option> 
+                                            <option value="Bidang E-Government">Bidang E-Government</option>
+                                            <option value="Bidang Infokom">Bidang Infokom</option>
+                                            <option value="Bidang TIK">Bidang TIK</option>
+                                        </select>
+                                    </div>
 
-                                    <select id="unit_kerja_utama" class="form-select" required>
-                                        <option value="">-- Pilih Bidang/Bagian --</option>
-                                        <option value="Kepala Dinas">Kepala Dinas</option>
-                                        <option value="Sekretaris Dinas">Sekretaris Dinas</option>
-                                        <option value="Sekretariat">Sekretariat</option> 
-                                        <option value="Bidang E-Government">Bidang E-Government</option>
-                                        <option value="Bidang Infokom">Bidang Infokom</option>
-                                        <option value="Bidang TIK">Bidang TIK</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 offset-md-6">
+                                    {{-- 2. Input Sub Bagian (Hidden Default) --}}
                                     <div id="wrapper_sub_unit" class="reveal-wrapper">
                                         <div class="mb-3"> 
                                             <label class="form-label fw-semibold small text-muted text-primary fst-italic ms-1">
@@ -242,7 +266,8 @@
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-3">
+                            {{-- BARIS 3: JABATAN & PENDIDIKAN --}}
+                            <div class="row g-3 mb-3 mt-1">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold small text-muted">Jabatan</label>
                                     <input type="text" name="jabatan" class="form-control" placeholder="Cth: Analis Kebijakan" required value="{{ old('jabatan') }}">
@@ -253,6 +278,7 @@
                                 </div>
                             </div>
 
+                            {{-- BARIS 4: GOLONGAN (HIDDEN DEFAULT - HANYA PNS & PPPK PENUH WAKTU) --}}
                             <div id="wrapper_golongan" class="reveal-wrapper">
                                 <div class="p-3 bg-light rounded border border-secondary border-opacity-25 mb-3">
                                     <label class="form-label fw-bold text-dark">Pangkat / Golongan Ruang <span class="text-danger">*</span></label>
@@ -264,13 +290,13 @@
                             </div>
                         </div>
 
-                        {{-- === TMT SETTINGS (DIBUNGKUS ID wrapper_tmt) === --}}
+                        {{-- === BAGIAN IV: JADWAL KENAIKAN (PANGKAT & GAJI) === --}}
                         <div id="wrapper_tmt" class="reveal-wrapper">
                             
                             <div class="alert alert-warning shadow-sm border-0 d-flex align-items-center mb-4 rounded-3">
                                 <i class="fas fa-calendar-check fs-2 me-3 text-warning"></i>
                                 <div>
-                                    <strong class="text-dark">Pengaturan Tanggal TMT (Penting!)</strong><br>
+                                    <strong class="text-dark">Pengaturan Jadwal Kenaikan (Penting!)</strong><br>
                                     <span class="text-muted small">Data ini digunakan sistem untuk menghitung jadwal Kenaikan Pangkat & KGB.</span>
                                 </div>
                             </div>
@@ -335,7 +361,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         
-        // --- CROPPER START ---
+        // ============================================
+        // 1. CROPPER LOGIC (FOTO PROFIL)
+        // ============================================
         var inputImage = document.getElementById('upload_image');
         var modalElement = document.getElementById('modalCrop');
         var modal = new bootstrap.Modal(modalElement);
@@ -384,10 +412,10 @@
             previewBox.innerHTML = '<img src="' + base64data + '" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">';
             modal.hide();
         });
-        // --- CROPPER END ---
+
 
         // ============================================
-        // 2. LOGIKA GOLONGAN & TMT (UPDATE DISINI)
+        // 2. LOGIKA FORM DINAMIS (STATUS, GOLONGAN, TMT)
         // ============================================
         const dataPNS = {
             "Golongan I (Juru)": [{val:"I/a",text:"I/a - Juru Muda"},{val:"I/b",text:"I/b - Juru Muda Tk. I"},{val:"I/c",text:"I/c - Juru"},{val:"I/d",text:"I/d - Juru Tk. I"}],
@@ -403,19 +431,21 @@
         ];
         const subBagianList = ["Sub Bagian Umum Kepegawaian", "Sub Bagian Perencanaan Keuangan dan Pelaporan"];
 
-        // Variabel
+        // Element Selectors
         const savedGolongan = "{{ old('golongan') }}";
         const savedUnit = "{{ old('unit_kerja') }}";
-
         const jenisPegawai = document.getElementById('jenis_pegawai');
+        
+        // Wrappers
+        const wrapperTmtPengangkatan = document.getElementById('wrapper_tmt_pengangkatan');
+        const inputTmtPengangkatan = document.getElementById('input_tmt_pengangkatan');
         const wrapperGolongan = document.getElementById('wrapper_golongan');
         const selectGolongan = document.getElementById('golongan');
-        
-        // Variabel TMT (BARU)
         const wrapperTMT = document.getElementById('wrapper_tmt');
         const inputTMTPangkat = document.getElementById('tmt_pangkat');
         const inputTMTGaji = document.getElementById('tmt_gaji');
 
+        // Unit Kerja Selectors
         const unitUtama = document.getElementById('unit_kerja_utama');
         const unitSub = document.getElementById('unit_kerja_sub');
         const wrapperSub = document.getElementById('wrapper_sub_unit');
@@ -425,13 +455,17 @@
             const selected = jenisPegawai.value;
             selectGolongan.innerHTML = '<option value="">-- Pilih Golongan --</option>';
 
-            // === JIKA HONORER / KOSONG ===
-            if (selected === 'Honorer' || selected === 'PPPK Paruh Waktu' || selected === '') {
+            // A. JIKA HONORER / KOSONG
+            if (selected === 'Honorer' || selected === '') {
                 // Sembunyikan Golongan
                 wrapperGolongan.classList.remove('show');
                 selectGolongan.removeAttribute('required');
 
-                // Sembunyikan TMT (INI LOGIKA BARUNYA)
+                // Sembunyikan TMT Pengangkatan
+                wrapperTmtPengangkatan.classList.remove('show');
+                inputTmtPengangkatan.removeAttribute('required');
+
+                // Sembunyikan TMT Pangkat/Gaji
                 wrapperTMT.classList.remove('show');
                 inputTMTPangkat.removeAttribute('required');
                 inputTMTGaji.removeAttribute('required');
@@ -439,16 +473,36 @@
                 return;
             }
 
-            // === JIKA PNS / PPPK ===
-            // Munculkan Golongan
+            // B. JIKA PPPK PARUH WAKTU (Hanya TMT Pengangkatan)
+            if (selected === 'PPPK Paruh Waktu') {
+                wrapperTmtPengangkatan.classList.add('show');
+                inputTmtPengangkatan.setAttribute('required', 'required');
+
+                wrapperGolongan.classList.remove('show');
+                selectGolongan.removeAttribute('required');
+
+                wrapperTMT.classList.remove('show');
+                inputTMTPangkat.removeAttribute('required');
+                inputTMTGaji.removeAttribute('required');
+                return;
+            }
+
+            // C. JIKA PNS / PPPK BIASA (PENUH WAKTU) (Semua Muncul)
+            
+            // 1. TMT Awal
+            wrapperTmtPengangkatan.classList.add('show');
+            inputTmtPengangkatan.setAttribute('required', 'required');
+
+            // 2. Golongan
             wrapperGolongan.classList.add('show');
             selectGolongan.setAttribute('required', 'required');
-
-            // Munculkan TMT
+            
+            // 3. Jadwal Kenaikan
             wrapperTMT.classList.add('show');
-            inputTMTPangkat.setAttribute('required', 'required');
+            inputTMTPangkat.setAttribute('required', 'required'); 
             inputTMTGaji.setAttribute('required', 'required');
 
+            // Isi Dropdown Golongan Sesuai Jenis
             if (selected === 'PNS') {
                 for (const [groupLabel, items] of Object.entries(dataPNS)) {
                     let optgroup = document.createElement('optgroup');
@@ -485,7 +539,9 @@
             }
         }
 
+        // Jalankan saat load
         if(jenisPegawai.value !== "") { updateGolongan(); }
+        
         if (savedUnit) {
             if (subBagianList.includes(savedUnit)) {
                 unitUtama.value = "Sekretariat";
@@ -497,6 +553,7 @@
             finalInputUnit.value = savedUnit;
         }
 
+        // Event Listeners
         jenisPegawai.addEventListener('change', updateGolongan);
         unitUtama.addEventListener('change', updateUnitKerja);
         unitSub.addEventListener('change', function() { finalInputUnit.value = this.value; });

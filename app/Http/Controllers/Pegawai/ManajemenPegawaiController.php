@@ -14,17 +14,9 @@ class ManajemenPegawaiController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Ambil daftar Unit Kerja Unik untuk dropdown filter
-        $listUnitKerja = Pegawai::select('unit_kerja')
-            ->whereNotNull('unit_kerja')
-            ->distinct()
-            ->orderBy('unit_kerja', 'asc')
-            ->pluck('unit_kerja');
-
-        // 2. Mulai Query Builder
+        $listUnitKerja = Pegawai::select('unit_kerja')->whereNotNull('unit_kerja')->distinct()->orderBy('unit_kerja', 'asc')->pluck('unit_kerja');
         $query = Pegawai::query();
 
-        // 3. Logika Pencarian
         if ($request->filled('q')) {
             $search = $request->input('q');
             $query->where(function($q) use ($search) {
@@ -34,18 +26,15 @@ class ManajemenPegawaiController extends Controller
             });
         }
 
-        // 4. Filter Status
         if ($request->filled('status')) {
             $query->where('jenis_pegawai', $request->input('status'));
         }
 
-        // 5. Filter Unit Kerja
         if ($request->filled('unit_kerja')) {
             $query->where('unit_kerja', $request->input('unit_kerja'));
         }
 
         $pegawai = $query->latest()->paginate(10); 
-
         return view('pegawai.index', compact('pegawai', 'listUnitKerja'));
     }
 
@@ -56,7 +45,6 @@ class ManajemenPegawaiController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi
         $data = $request->validate([
             'nik' => 'required|numeric|digits:16|unique:pegawai,nik',
             'nip' => 'nullable|string|max:20|unique:pegawai,nip',
@@ -73,23 +61,23 @@ class ManajemenPegawaiController extends Controller
             'jenis_pegawai' => 'required|string|max:50',
             'golongan' => 'nullable|string|max:20',
             'pendidikan_terakhir' => 'required|string|max:100',
+            
+            // --- FIELD TANGGAL ---
+            'tmt_pengangkatan' => 'required|date', // <--- BARU: WAJIB DIISI
             'tmt_pangkat_terakhir' => 'nullable|date',
             'tmt_gaji_berkala_terakhir' => 'nullable|date',
+            
             'foto_cropped' => 'nullable|string', 
         ]);
 
-        // --- KHUSUS JABATAN: AUTO RAPIKAN HURUF BESAR ---
-        // Contoh: "kepala dinas" -> "Kepala Dinas"
+        // Auto Rapikan Jabatan (Huruf Besar Awal Kata)
         $data['jabatan'] = ucwords(strtolower($request->jabatan));
 
-        // LOGIKA SIMPAN FOTO HASIL CROP (BASE64)
         if ($request->filled('foto_cropped')) {
             $image = Image::make($request->foto_cropped);
             $fileName = time() . '_' . uniqid() . '.png';
             $path = 'foto_pegawai/' . $fileName;
-
             Storage::disk('public')->put($path, (string) $image->encode('png'));
-
             $data['foto_profil'] = $path;
         }
 
@@ -130,26 +118,26 @@ class ManajemenPegawaiController extends Controller
             'jenis_pegawai' => 'required|string|max:50',
             'golongan' => 'nullable|string|max:20',
             'pendidikan_terakhir' => 'required|string|max:100',
+            
+            // --- FIELD TANGGAL ---
+            'tmt_pengangkatan' => 'required|date',
             'tmt_pangkat_terakhir' => 'nullable|date',
             'tmt_gaji_berkala_terakhir' => 'nullable|date',
+            
             'foto_cropped' => 'nullable|string',
         ]);
 
-        // --- KHUSUS JABATAN: AUTO RAPIKAN HURUF BESAR ---
+        // Auto Rapikan Jabatan
         $data['jabatan'] = ucwords(strtolower($request->jabatan));
 
-        // LOGIKA UPDATE FOTO HASIL CROP
         if ($request->filled('foto_cropped')) {
             if ($pegawai->foto_profil && Storage::disk('public')->exists($pegawai->foto_profil)) {
                 Storage::disk('public')->delete($pegawai->foto_profil);
             }
-
             $image = Image::make($request->foto_cropped);
             $fileName = time() . '_' . uniqid() . '.png';
             $path = 'foto_pegawai/' . $fileName;
-
             Storage::disk('public')->put($path, (string) $image->encode('png'));
-
             $data['foto_profil'] = $path;
         } else {
             unset($data['foto_profil']);
@@ -163,74 +151,66 @@ class ManajemenPegawaiController extends Controller
     public function destroy($id)
     {
         $pegawai = Pegawai::findOrFail($id);
-
         if ($pegawai->foto_profil && Storage::disk('public')->exists($pegawai->foto_profil)) {
             Storage::disk('public')->delete($pegawai->foto_profil);
         }
-
         $pegawai->delete();
-
         return redirect()->route('manajemen-pegawai')->with('success', 'Data pegawai berhasil dihapus');
     }
 
+    // --- FITUR EXPORT PDF ---
     public function exportPdf()
     {
         ini_set('max_execution_time', 600); 
         ini_set('memory_limit', '512M');
-
         $pegawai = Pegawai::orderBy('nama', 'asc')->get();
-
         $pdf = Pdf::loadView('pegawai.pdf_profil', compact('pegawai'));
         $pdf->setPaper('a4', 'portrait');
-
         return $pdf->download('Data_Profil_Pegawai_'.date('Y-m-d').'.pdf');
     }
 
+    // --- FITUR EXPORT EXCEL (UPDATE TMT PENGANGKATAN) ---
     public function exportExcel()
     {
-        // Ambil semua data pegawai, urutkan per Status dulu baru Nama biar rapi
         $pegawai = Pegawai::orderBy('jenis_pegawai', 'desc')->orderBy('nama', 'asc')->get();
 
         $data = $pegawai->map(function ($p) {
-            
-            // --- FILTER KELAYAKAN ---
             $isEligiblePangkat = $p->jenis_pegawai === 'PNS'; 
             $isEligibleGaji    = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
             $isEligiblePensiun = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
 
-            // --- 1. LOGIKA PENSIUN ---
-            $tglPensiun = null;
-            $isPensiun = false;
-
+            // 1. LOGIKA PENSIUN
+            $tglPensiun = null; $isPensiun = false;
             if ($isEligiblePensiun && $p->tanggal_lahir) {
-                // DEFAULT 58 TAHUN
                 $batasPensiun = 58; 
-
-                // LOGIKA BARU: Cek jika jabatan mengandung kata "Kepala Dinas"
                 if (stripos($p->jabatan, 'Kepala Dinas') !== false) {
                     $batasPensiun = 60;
                 }
-                
                 $tglPensiun = Carbon::parse($p->tanggal_lahir)->addYears($batasPensiun);
                 $isPensiun = Carbon::now()->addYear()->greaterThanOrEqualTo($tglPensiun);
             }
 
-            // --- 2. LOGIKA NAIK PANGKAT (PNS Only) ---
-            $nextPangkat = null;
-            $isNaikPangkat = false;
-            
+            // 2. LOGIKA NAIK PANGKAT
+            $nextPangkat = null; $isNaikPangkat = false;
             if ($isEligiblePangkat && $p->tmt_pangkat_terakhir) {
                 $nextPangkat = Carbon::parse($p->tmt_pangkat_terakhir)->addYears(4);
                 $isNaikPangkat = $nextPangkat->isPast() || $nextPangkat->isToday();
             }
 
-            // --- 3. LOGIKA GAJI BERKALA (PNS & PPPK) ---
-            $nextGaji = null;
-            $isNaikGaji = false;
-            
+            // 3. LOGIKA GAJI BERKALA
+            $nextGaji = null; $isNaikGaji = false;
             if ($isEligibleGaji && $p->tmt_gaji_berkala_terakhir) {
                 $nextGaji = Carbon::parse($p->tmt_gaji_berkala_terakhir)->addYears(2);
                 $isNaikGaji = $nextGaji->isPast() || $nextGaji->isToday();
+            }
+            
+            // 4. MASA KERJA (Hitung dari TMT Pengangkatan sampai Sekarang)
+            $masaKerja = '-';
+            if ($p->tmt_pengangkatan) {
+                $awal = Carbon::parse($p->tmt_pengangkatan);
+                $skrg = Carbon::now();
+                $diff = $awal->diff($skrg);
+                $masaKerja = $diff->y . " Thn " . $diff->m . " Bln";
             }
 
             return (object) [
@@ -240,6 +220,10 @@ class ManajemenPegawaiController extends Controller
                 'golongan' => $p->golongan,
                 'jabatan' => $p->jabatan,
                 
+                // Tambahan Data Baru
+                'tmt_pengangkatan' => $p->tmt_pengangkatan ? Carbon::parse($p->tmt_pengangkatan) : null,
+                'masa_kerja' => $masaKerja,
+
                 'tgl_naik_pangkat' => $nextPangkat,
                 'status_pangkat' => $isNaikPangkat,
                 

@@ -44,4 +44,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/sk', [SKController::class, 'index'])->name('arsip-sk');
     Route::get('/sk/create', [SKController::class, 'create'])->name('tambah-sk'); // URL bisa menerima ?pegawai_id=1
     Route::post('/sk', [SKController::class, 'store'])->name('simpan-sk');
+    Route::delete('/sk/hapus/{id}', [SKController::class, 'destroy'])->name('hapus-sk');
 }); 

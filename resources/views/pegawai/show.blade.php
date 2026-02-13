@@ -10,21 +10,20 @@
     $batasPensiun = 58; 
     
     // 2. Cek Jenis Pegawai untuk pengecualian
-    // Honorer dan PPPK Paruh Waktu dianggap tidak memiliki BUP standar
+    // Honorer dan PPPK Paruh Waktu dianggap tidak memiliki BUP standar (Sesuai Kontrak)
     $isNonPensionable = in_array($pegawai->jenis_pegawai, ['Honorer', 'PPPK Paruh Waktu']);
+    
+    // 3. Cek Kelengkapan Data untuk Golongan/Jadwal
+    // PPPK Paruh Waktu & Honorer tidak punya Golongan & Jadwal Kenaikan
+    $hideGolonganAndJadwal = in_array($pegawai->jenis_pegawai, ['Honorer', 'PPPK Paruh Waktu']);
 
     $sudahPensiun = false;
     $masaPersiapan = false;
     $tglPensiun = null;
 
     if (!$isNonPensionable && $pegawai->tanggal_lahir) {
-        // Logika Khusus: Jika PNS Golongan IV, BUP jadi 60 tahun
-        if ($pegawai->jenis_pegawai === 'PNS' && strpos($pegawai->golongan, 'IV') === 0) {
-            $batasPensiun = 60;
-        }
-        // Logika Khusus: Jika PPPK Golongan Tinggi (XIII - XVII), BUP jadi 60 tahun
-        $pppkHighGrades = ['XIII', 'XIV', 'XV', 'XVI', 'XVII'];
-        if ($pegawai->jenis_pegawai === 'PPPK' && in_array($pegawai->golongan, $pppkHighGrades)) {
+        // Logika Khusus: Jika Jabatan adalah "Kepala Dinas", BUP jadi 60 tahun
+        if (stripos($pegawai->jabatan, 'Kepala Dinas') !== false) {
             $batasPensiun = 60;
         }
 
@@ -41,7 +40,7 @@
 @endphp
 
 {{-- ALERT STATUS PENSIUN (Hanya Tampil Jika Bukan Honorer/Paruh Waktu) --}}
-@if(!$isNonPensionable)
+@if(!$isNonPensionable && $tglPensiun)
     @if($sudahPensiun)
         <div class="alert alert-danger d-flex align-items-center shadow-sm mb-4" role="alert">
             <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
@@ -59,7 +58,7 @@
             <div>
                 <h5 class="alert-heading fw-bold mb-1">MASA PERSIAPAN PENSIUN (MPP)</h5>
                 <p class="mb-0">
-                    Pegawai ini akan pensiun dalam <strong>{{ $hariIni->diffForHumans($tglPensiun, ['parts' => 2]) }}</strong> 
+                    Pegawai ini akan pensiun dalam <strong>{{ \Carbon\Carbon::now()->diffForHumans($tglPensiun, ['parts' => 2]) }}</strong> 
                     (Tanggal: {{ $tglPensiun->translatedFormat('d F Y') }}).
                 </p>
             </div>
@@ -132,8 +131,25 @@
                                 <tr>
                                     <td class="text-muted">Status Kepegawaian</td>
                                     <td>:</td>
-                                    <td><span class="badge bg-info text-dark">{{ $pegawai->jenis_pegawai }}</span></td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">{{ $pegawai->jenis_pegawai }}</span>
+                                    </td>
                                 </tr>
+
+                                @if(in_array($pegawai->jenis_pegawai, ['PNS', 'PPPK']))
+                                <tr>
+                                    <td class="text-muted">TMT Pengangkatan</td>
+                                    <td>:</td>
+                                    <td>
+                                        @if($pegawai->tmt_pengangkatan)
+                                            <span class="text-primary fw-bold">{{ \Carbon\Carbon::parse($pegawai->tmt_pengangkatan)->isoFormat('D MMMM Y') }}</span>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endif
+
                                 <tr>
                                     <td class="text-muted">Unit Kerja</td>
                                     <td>:</td>
@@ -145,8 +161,8 @@
                                     <td>{{ $pegawai->jabatan }}</td>
                                 </tr>
                                 
-                                {{-- GOLONGAN (HANYA MUNCUL JIKA BUKAN HONORER/PARUH WAKTU) --}}
-                                @if(!$isNonPensionable)
+                                {{-- GOLONGAN (DISEMBUNYIKAN UNTUK PARUH WAKTU & HONORER) --}}
+                                @if(!$hideGolonganAndJadwal)
                                 <tr>
                                     <td class="text-muted">Golongan / Ruang</td>
                                     <td>:</td>
@@ -165,7 +181,7 @@
                                     <td class="fw-semibold">{{ Carbon::parse($pegawai->tanggal_lahir)->age }} Tahun</td>
                                 </tr>
 
-                                {{-- BATAS PENSIUN (HANYA MUNCUL JIKA BUKAN HONORER/PARUH WAKTU) --}}
+                                {{-- BATAS PENSIUN (DISEMBUNYIKAN UNTUK PARUH WAKTU & HONORER) --}}
                                 @if(!$isNonPensionable && $tglPensiun)
                                 <tr>
                                     <td class="text-muted">Batas Pensiun</td>
@@ -178,10 +194,10 @@
                                 @endif
                             </table>
 
-                            {{-- INFO TMT (HANYA MUNCUL JIKA BUKAN HONORER/PARUH WAKTU) --}}
-                            @if(!$isNonPensionable)
+                            {{-- INFO JADWAL KENAIKAN (DISEMBUNYIKAN UNTUK PARUH WAKTU & HONORER) --}}
+                            @if(!$hideGolonganAndJadwal)
                             <div class="alert alert-light border mt-3 d-flex align-items-center">
-                                <i class="fas fa-info-circle text-primary me-3 fs-4"></i>
+                                <i class="fas fa-calendar-alt text-primary me-3 fs-4"></i>
                                 <div>
                                     <small class="text-muted d-block">TMT Pangkat Terakhir:</small>
                                     <strong>{{ $pegawai->tmt_pangkat_terakhir ? Carbon::parse($pegawai->tmt_pangkat_terakhir)->isoFormat('D MMMM Y') : '-' }}</strong>
@@ -207,9 +223,6 @@
                         <i class="fas fa-folder-open me-2 text-warning"></i> Arsip Dokumen SK
                     </h6>
 
-                    {{-- Tombol Tambah SK --}}
-                    {{-- Pastikan route 'tambah-sk' sudah didefinisikan --}}
-                    {{-- <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-success btn-sm"> --}}
                     <a href="{{ route('tambah-sk', ['pegawai_id' => $pegawai->id]) }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus-circle me-1"></i> Upload SK Baru
                     </a>
@@ -229,28 +242,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- Pastikan relasi 'sk' ada di model Pegawai --}}
-                                {{-- @forelse($pegawai->sk as $index => $item) --}}
-                                @forelse([] as $index => $item) {{-- Placeholder array kosong agar tidak error --}}
+                                {{-- MENGGUNAKAN RELASI 'sk' DARI MODEL PEGAWAI --}}
+                                @forelse($pegawai->sk as $index => $item)
                                 <tr>
                                     <td class="ps-4">{{ $index + 1 }}</td>
-                                    <td><span class="fw-semibold">{{ $item->jenis_sk }}</span></td>
+                                    <td>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary">{{ $item->jenis_sk }}</span>
+                                    </td>
                                     <td>{{ $item->nomor_sk }}</td>
                                     <td>{{ \Carbon\Carbon::parse($item->tanggal_sk)->format('d/m/Y') }}</td>
                                     <td>{{ \Carbon\Carbon::parse($item->tmt_sk)->format('d/m/Y') }}</td>
                                     <td>
                                         @if($item->file_sk)
-                                            <a href="{{ asset('storage/' . $item->file_sk) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-file-pdf"></i> Lihat
+                                            <a href="{{ asset('storage/' . $item->file_sk) }}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-file-pdf"></i> PDF
                                             </a>
                                         @else
-                                            <span class="text-muted small">Tidak ada file</span>
+                                            <span class="text-muted small">-</span>
                                         @endif
                                     </td>
                                     <td class="text-end pe-4">
-                                        <button class="btn btn-sm btn-link text-danger p-0" onclick="alert('Fitur hapus belum diaktifkan')">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
+                                        <form action="{{ route('hapus-sk', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus SK ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Hapus">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                                 @empty

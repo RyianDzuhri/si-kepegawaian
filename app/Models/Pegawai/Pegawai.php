@@ -17,6 +17,7 @@ class Pegawai extends Model
         'nip', 
         'nik', 
         'nama', 
+        'tmt_pengangkatan',
         'foto_profil',
         'no_hp',
         'email',

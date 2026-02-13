@@ -52,6 +52,10 @@ header("Expires: 0");
                 <th width="100" class="bg-header">Status</th>
                 <th width="80" class="bg-header">Gol.</th>
                 <th width="250" class="bg-header">Jabatan</th>
+                
+                {{-- KOLOM BARU (Hanya TMT Pengangkatan) --}}
+                <th width="120" class="bg-header">TMT Pengangkatan</th>
+
                 <th width="120" class="bg-header">Jadwal Pangkat</th>
                 <th width="120" class="bg-header">Jadwal Gaji</th>
                 <th width="120" class="bg-header">Tgl Pensiun</th>
@@ -69,6 +73,15 @@ header("Expires: 0");
                 <td class="text-center">{{ $row->jenis }}</td>
                 <td class="text-center">{{ $row->golongan ?? '-' }}</td>
                 <td>{{ $row->jabatan }}</td>
+
+                {{-- TMT PENGANGKATAN (PNS, PPPK, & PPPK PARUH WAKTU) --}}
+                <td class="text-center">
+                    @if(in_array($row->jenis, ['PNS', 'PPPK', 'PPPK Paruh Waktu']) && $row->tmt_pengangkatan)
+                        {{ $row->tmt_pengangkatan->format('d/m/Y') }}
+                    @else
+                        -
+                    @endif
+                </td>
 
                 {{-- NAIK PANGKAT (Hanya Tanggal) --}}
                 <td class="text-center {{ $row->status_pangkat ? 'bg-yellow' : '' }}">
