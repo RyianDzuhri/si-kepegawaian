@@ -461,9 +461,13 @@
                 wrapperGolongan.classList.remove('show');
                 selectGolongan.removeAttribute('required');
 
-                // Sembunyikan TMT Pengangkatan
-                wrapperTmtPengangkatan.classList.remove('show');
-                inputTmtPengangkatan.removeAttribute('required');
+                if (selected === 'Honorer') {
+                    wrapperTmtPengangkatan.classList.add('show');
+                    inputTmtPengangkatan.setAttribute('required', 'required');
+                } else {
+                    wrapperTmtPengangkatan.classList.remove('show');
+                    inputTmtPengangkatan.removeAttribute('required');
+                }
 
                 // Sembunyikan TMT Pangkat/Gaji
                 wrapperTMT.classList.remove('show');
