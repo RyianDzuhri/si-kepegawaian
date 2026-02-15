@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Pegawai\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Intervention\Image\Facades\Image;
 use Carbon\Carbon;
 
@@ -158,59 +157,50 @@ class ManajemenPegawaiController extends Controller
         return redirect()->route('manajemen-pegawai')->with('success', 'Data pegawai berhasil dihapus');
     }
 
-    // --- FITUR EXPORT PDF ---
-    public function exportPdf()
-    {
-        ini_set('max_execution_time', 600); 
-        ini_set('memory_limit', '512M');
-        $pegawai = Pegawai::orderBy('nama', 'asc')->get();
-        $pdf = Pdf::loadView('pegawai.pdf_profil', compact('pegawai'));
-        $pdf->setPaper('a4', 'portrait');
-        return $pdf->download('Data_Profil_Pegawai_'.date('Y-m-d').'.pdf');
-    }
-
-    // --- FITUR EXPORT EXCEL (UPDATE TMT PENGANGKATAN) ---
+    // --- FITUR EXPORT EXCEL
     public function exportExcel()
     {
+        // Ambil semua data pegawai, urutkan per Status dulu baru Nama biar rapi
         $pegawai = Pegawai::orderBy('jenis_pegawai', 'desc')->orderBy('nama', 'asc')->get();
 
         $data = $pegawai->map(function ($p) {
+            
+            // --- FILTER KELAYAKAN ---
             $isEligiblePangkat = $p->jenis_pegawai === 'PNS'; 
             $isEligibleGaji    = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
             $isEligiblePensiun = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
 
-            // 1. LOGIKA PENSIUN
-            $tglPensiun = null; $isPensiun = false;
+            // --- 1. LOGIKA PENSIUN ---
+            $tglPensiun = null;
+            $isPensiun = false;
+
             if ($isEligiblePensiun && $p->tanggal_lahir) {
                 $batasPensiun = 58; 
+                // Cek jika jabatan mengandung kata "Kepala Dinas"
                 if (stripos($p->jabatan, 'Kepala Dinas') !== false) {
                     $batasPensiun = 60;
                 }
+                
                 $tglPensiun = Carbon::parse($p->tanggal_lahir)->addYears($batasPensiun);
                 $isPensiun = Carbon::now()->addYear()->greaterThanOrEqualTo($tglPensiun);
             }
 
-            // 2. LOGIKA NAIK PANGKAT
-            $nextPangkat = null; $isNaikPangkat = false;
+            // --- 2. LOGIKA NAIK PANGKAT (PNS Only) ---
+            $nextPangkat = null;
+            $isNaikPangkat = false;
+            
             if ($isEligiblePangkat && $p->tmt_pangkat_terakhir) {
                 $nextPangkat = Carbon::parse($p->tmt_pangkat_terakhir)->addYears(4);
                 $isNaikPangkat = $nextPangkat->isPast() || $nextPangkat->isToday();
             }
 
-            // 3. LOGIKA GAJI BERKALA
-            $nextGaji = null; $isNaikGaji = false;
+            // --- 3. LOGIKA GAJI BERKALA (PNS & PPPK) ---
+            $nextGaji = null;
+            $isNaikGaji = false;
+            
             if ($isEligibleGaji && $p->tmt_gaji_berkala_terakhir) {
                 $nextGaji = Carbon::parse($p->tmt_gaji_berkala_terakhir)->addYears(2);
                 $isNaikGaji = $nextGaji->isPast() || $nextGaji->isToday();
-            }
-            
-            // 4. MASA KERJA (Hitung dari TMT Pengangkatan sampai Sekarang)
-            $masaKerja = '-';
-            if ($p->tmt_pengangkatan) {
-                $awal = Carbon::parse($p->tmt_pengangkatan);
-                $skrg = Carbon::now();
-                $diff = $awal->diff($skrg);
-                $masaKerja = $diff->y . " Thn " . $diff->m . " Bln";
             }
 
             return (object) [
@@ -220,10 +210,12 @@ class ManajemenPegawaiController extends Controller
                 'golongan' => $p->golongan,
                 'jabatan' => $p->jabatan,
                 
-                // Tambahan Data Baru
                 'tmt_pengangkatan' => $p->tmt_pengangkatan ? Carbon::parse($p->tmt_pengangkatan) : null,
-                'masa_kerja' => $masaKerja,
-
+                
+                // --- DATA TMT TERAKHIR (BARU DITAMBAHKAN) ---
+                'tmt_pangkat_terakhir' => $p->tmt_pangkat_terakhir ? Carbon::parse($p->tmt_pangkat_terakhir) : null,
+                'tmt_gaji_terakhir' => $p->tmt_gaji_berkala_terakhir ? Carbon::parse($p->tmt_gaji_berkala_terakhir) : null,
+                
                 'tgl_naik_pangkat' => $nextPangkat,
                 'status_pangkat' => $isNaikPangkat,
                 
