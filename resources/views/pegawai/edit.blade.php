@@ -22,7 +22,7 @@
         max-height: 0; opacity: 0; overflow: hidden; transition: all 0.4s ease-in-out; transform: translateY(-10px);
     }
     .reveal-wrapper.show {
-        max-height: 500px; /* Tinggi maksimal container saat terbuka */
+        max-height: 500px; 
         opacity: 1; transform: translateY(0); margin-top: 1rem; margin-bottom: 0.5rem;
     }
 
@@ -159,11 +159,17 @@
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold small text-muted">Nomor HP / WhatsApp</label>
-                                    <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', $pegawai->no_hp) }}">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-phone"></i></span>
+                                        <input type="text" name="no_hp" class="form-control border-start-0 ps-0" placeholder="08..." value="{{ old('no_hp', $pegawai->no_hp) }}">
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold small text-muted">Alamat Email</label>
-                                    <input type="email" name="email" class="form-control" value="{{ old('email', $pegawai->email) }}">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-envelope"></i></span>
+                                        <input type="email" name="email" class="form-control border-start-0 ps-0" value="{{ old('email', $pegawai->email) }}">
+                                    </div>
                                 </div>
                             </div>
                             
@@ -191,7 +197,7 @@
                             </div>
                         </div>
 
-                        {{-- BAGIAN III: DATA KEPEGAWAIAN (STRUKTUR RAPI) --}}
+                        {{-- BAGIAN III: DATA KEPEGAWAIAN --}}
                         <div class="form-section border-left-warning">
                             <div class="section-title text-dark">
                                 <i class="fas fa-briefcase"></i> III. Data Kepegawaian
@@ -212,15 +218,15 @@
                                         </select>
                                     </div>
 
-                                    {{-- 2. Input TMT Pengangkatan (Hidden Default) --}}
+                                    {{-- 2. Input TMT Pengangkatan --}}
                                     <div id="wrapper_tmt_pengangkatan" class="reveal-wrapper">
                                         <div class="p-3 bg-primary bg-opacity-10 rounded border border-primary border-opacity-25">
-                                            <label class="form-label fw-bold text-primary">TMT Pengangkatan (Awal Karir) <span class="text-danger">*</span></label>
+                                            <label class="form-label fw-bold text-primary">TMT Pengangkatan (Awal Karir) <span class="text-danger d-none" id="req_tmt_pengangkatan">*</span></label>
                                             <input type="date" name="tmt_pengangkatan" id="input_tmt_pengangkatan"
                                                    class="form-control border-primary" 
                                                    value="{{ old('tmt_pengangkatan', $pegawai->tmt_pengangkatan) }}">
                                             <div class="form-text text-muted small mt-1">
-                                                <i class="fas fa-info-circle me-1"></i> Tanggal SK pertama kali diangkat (CPNS/PPPK/Kontrak Awal).
+                                                <i class="fas fa-info-circle me-1"></i> Tanggal pertama kali diangkat (CPNS/PPPK/Kontrak).
                                             </div>
                                         </div>
                                     </div>
@@ -243,7 +249,7 @@
                                         </select>
                                     </div>
 
-                                    {{-- 2. Input Sub Bagian (Hidden Default) --}}
+                                    {{-- 2. Input Sub Bagian --}}
                                     <div id="wrapper_sub_unit" class="reveal-wrapper">
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold small text-muted text-primary fst-italic ms-1">
@@ -271,14 +277,14 @@
                                 </div>
                             </div>
 
-                            {{-- BARIS 4: GOLONGAN (HIDDEN DEFAULT - HANYA PNS & PPPK PENUH WAKTU) --}}
+                            {{-- BARIS 4: GOLONGAN --}}
                             <div id="wrapper_golongan" class="reveal-wrapper">
                                 <div class="p-3 bg-light rounded border border-secondary border-opacity-25 mb-3">
                                     <label class="form-label fw-bold text-dark">Pangkat / Golongan Ruang <span class="text-danger">*</span></label>
                                     <select name="golongan" id="golongan" class="form-select border-secondary border-opacity-25">
                                         <option value="">-- Pilih Golongan --</option>
                                     </select>
-                                    <small class="text-muted d-block mt-1"><i class="fas fa-info-circle me-1"></i> Opsi golongan menyesuaikan status pegawai.</small>
+                                    <small class="text-muted d-block mt-1"><i class="fas fa-info-circle me-1"></i> Sesuaikan jika ada kenaikan pangkat.</small>
                                 </div>
                             </div>
                         </div>
@@ -354,7 +360,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         
         // ============================================
-        // 1. CROPPER LOGIC (FOTO PROFIL)
+        // 1. CROPPER LOGIC
         // ============================================
         var inputImage = document.getElementById('upload_image');
         var modalElement = document.getElementById('modalCrop');
@@ -431,6 +437,8 @@
         // Wrappers
         const wrapperTmtPengangkatan = document.getElementById('wrapper_tmt_pengangkatan');
         const inputTmtPengangkatan = document.getElementById('input_tmt_pengangkatan');
+        const labelReqTmt = document.getElementById('req_tmt_pengangkatan');
+
         const wrapperGolongan = document.getElementById('wrapper_golongan');
         const selectGolongan = document.getElementById('golongan');
         const wrapperTMT = document.getElementById('wrapper_tmt');
@@ -453,9 +461,15 @@
                 wrapperGolongan.classList.remove('show');
                 selectGolongan.removeAttribute('required');
 
-                // Sembunyikan TMT Pengangkatan
-                wrapperTmtPengangkatan.classList.remove('show');
-                inputTmtPengangkatan.removeAttribute('required');
+                // TMT Pengangkatan (Opsional untuk Honorer, sembunyikan jika kosong)
+                if (selected === 'Honorer') {
+                    wrapperTmtPengangkatan.classList.add('show');
+                    inputTmtPengangkatan.removeAttribute('required'); // Tidak wajib
+                    labelReqTmt.classList.add('d-none'); // Hilangkan bintang merah
+                } else {
+                    wrapperTmtPengangkatan.classList.remove('show');
+                    inputTmtPengangkatan.removeAttribute('required');
+                }
 
                 // Sembunyikan TMT Pangkat/Gaji
                 wrapperTMT.classList.remove('show');
@@ -469,6 +483,7 @@
             if (selected === 'PPPK Paruh Waktu') {
                 wrapperTmtPengangkatan.classList.add('show');
                 inputTmtPengangkatan.setAttribute('required', 'required');
+                labelReqTmt.classList.remove('d-none'); // Tampilkan bintang merah
 
                 wrapperGolongan.classList.remove('show');
                 selectGolongan.removeAttribute('required');
@@ -484,6 +499,7 @@
             // 1. TMT Awal
             wrapperTmtPengangkatan.classList.add('show');
             inputTmtPengangkatan.setAttribute('required', 'required');
+            labelReqTmt.classList.remove('d-none'); // Tampilkan bintang merah
 
             // 2. Golongan
             wrapperGolongan.classList.add('show');
@@ -491,8 +507,9 @@
             
             // 3. Jadwal Kenaikan
             wrapperTMT.classList.add('show');
-            inputTMTPangkat.setAttribute('required', 'required'); 
-            inputTMTGaji.setAttribute('required', 'required');
+            // Di Edit, kita tidak paksa required untuk jadwal ini agar user bisa save tanpa harus isi jika memang belum ada
+            inputTMTPangkat.removeAttribute('required'); 
+            inputTMTGaji.removeAttribute('required');
 
             // Isi Dropdown Golongan Sesuai Jenis
             if (selected === 'PNS') {
@@ -522,11 +539,10 @@
             if (val === 'Sekretariat') {
                 wrapperSub.classList.add('show');
                 unitSub.setAttribute('required', 'required');
-                // Cek jika savedUnit adalah sub-unit, maka select sub-unit
                 if (subBagianList.includes(savedUnit)) {
                     unitSub.value = savedUnit;
                 }
-                finalInputUnit.value = unitSub.value || val; // Fallback
+                finalInputUnit.value = unitSub.value || val; 
             } else {
                 wrapperSub.classList.remove('show');
                 unitSub.removeAttribute('required');
@@ -541,7 +557,6 @@
         if (savedUnit) {
             if (subBagianList.includes(savedUnit)) {
                 unitUtama.value = "Sekretariat";
-                // Trigger manual update biar sub-unit muncul
                 wrapperSub.classList.add('show');
                 unitSub.value = savedUnit;
             } else {
