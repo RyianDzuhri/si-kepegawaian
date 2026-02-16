@@ -1,7 +1,6 @@
 <?php
-// Header agar file dikenali sebagai Excel
 header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=Data_Pegawai_" . date('d-m-Y') . ".xls");
+header("Content-Disposition: attachment; filename=Data_Induk_Pegawai_" . date('d-m-Y') . ".xls"); // Nama file saya ubah jadi Data Induk
 header("Pragma: no-cache");
 header("Expires: 0");
 ?>
@@ -10,123 +9,105 @@ header("Expires: 0");
 <head>
     <meta charset="utf-8">
     <style>
-        /* 1. FONT SERAGAM */
-        body, table, th, td {
-            font-family: Arial, sans-serif;
-            font-size: 11pt;
-        }
-
-        /* 2. TABEL DENGAN BORDER TEGAS */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-        }
-        th, td { 
-            border: 1px solid #000000; 
-            padding: 6px;
-            vertical-align: middle;
-        }
+        body, table, th, td { font-family: Arial, sans-serif; font-size: 10pt; } /* Font sedikit diperkecil biar muat */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000000; padding: 5px; vertical-align: middle; }
         .text-center { text-align: center; }
+        .text-left { text-align: left; }
 
-        /* =========================================================
-           3. WARNA HEADER Saja (Pekat + Teks Putih)
-           ========================================================= */
-        .h-umum   { background-color: #595959; color: #FFFFFF; font-weight: bold; text-align: center; } /* Abu-abu Tua */
-        .h-hijau  { background-color: #548235; color: #FFFFFF; font-weight: bold; text-align: center; } /* Hijau Daun */
-        .h-biru   { background-color: #2E75B6; color: #FFFFFF; font-weight: bold; text-align: center; } /* Biru Laut */
-        .h-kuning { background-color: #C69000; color: #FFFFFF; font-weight: bold; text-align: center; } /* Emas/Kuning Gelap */
-        .h-merah  { background-color: #C00000; color: #FFFFFF; font-weight: bold; text-align: center; } /* Merah Darah */
-
-        /* =========================================================
-           4. WARNA JATUH TEMPO (Muncul di data HANYA jika sudah waktunya)
-           ========================================================= */
-        .due-biru   { background-color: #1F4E78; color: #FFFFFF; font-weight: bold; } /* Biru Gelap */
-        .due-kuning { background-color: #FFC000; color: #000000; font-weight: bold; } /* Kuning Terang */
-        .due-merah  { background-color: #FF0000; color: #FFFFFF; font-weight: bold; } /* Merah Terang */
+        /* WARNA HEADER */
+        .h-dark   { background-color: #404040; color: #FFFFFF; font-weight: bold; text-align: center; } /* Identitas Utama */
+        .h-blue   { background-color: #4472C4; color: #FFFFFF; font-weight: bold; text-align: center; } /* Kepegawaian */
+        .h-info   { background-color: #70AD47; color: #FFFFFF; font-weight: bold; text-align: center; } /* Biodata (Hijau) */
+        
+        /* WARNA MONITORING (Alert) */
+        .alert-pangkat { background-color: #DEEBF7; color: #000000; } /* Biru Muda */
+        .alert-gaji    { background-color: #FFF2CC; color: #000000; } /* Kuning Muda */
+        .alert-pensiun { background-color: #FCE4D6; color: #000000; } /* Merah Muda */
+        
+        .due-date { font-weight: bold; color: #C00000; } /* Teks Merah jika jatuh tempo */
     </style>
 </head>
 <body>
 
-    <h3 style="font-weight: bold;">DATA PEGAWAI & JADWAL KENAIKAN</h3>
-    <p>Diunduh pada: {{ date('d/m/Y H:i') }}</p>
+    <h3 style="font-weight: bold; text-transform: uppercase;">DATA INDUK PEGAWAI & MONITORING KENAIKAN</h3>
+    <p>Tanggal Unduh: {{ date('d F Y, H:i') }}</p>
     <br>
 
     <table border="1">
         <thead>
-            <tr style="height: 35px;">
-                {{-- IDENTITAS PEGAWAI --}}
-                <th width="50" class="h-umum">No</th>
-                <th width="250" class="h-umum">Nama Pegawai</th>
-                <th width="180" class="h-umum">NIP / NIK</th>
-                <th width="100" class="h-umum">Status</th>
-                <th width="80" class="h-umum">Gol.</th>
-                <th width="250" class="h-umum">Jabatan</th>
+            <tr style="height: 40px;">
+                {{-- 1. IDENTITAS UTAMA (Hitam/Abu Tua) --}}
+                <th width="40" class="h-dark">No</th>
+                <th width="250" class="h-dark">Nama Lengkap</th>
+                <th width="180" class="h-dark">NIP</th>
+                <th width="160" class="h-dark">NIK (KTP)</th> {{-- BARU --}}
+                <th width="200" class="h-dark">Unit Kerja</th> {{-- BARU --}}
                 
-                {{-- TMT AWAL --}}
-                <th width="130" class="h-hijau">TMT Pengangkatan</th>
+                {{-- 2. BIODATA (Hijau) --}}
+                <th width="40"  class="h-info">L/P</th>
+                <th width="150" class="h-info">Tempat Lahir</th>
+                <th width="100" class="h-info">Tgl Lahir</th>
+                <th width="100" class="h-info">Pendidikan</th>
+                <th width="130" class="h-info">No. HP</th>
 
-                {{-- PANGKAT --}}
-                <th width="130" class="h-biru">TMT Pangkat Terakhir</th>
-                <th width="130" class="h-biru">Est. Naik Pangkat</th>
+                {{-- 3. DATA JABATAN (Biru) --}}
+                <th width="100" class="h-blue">Status</th>
+                <th width="60"  class="h-blue">Gol.</th>
+                <th width="250" class="h-blue">Jabatan</th>
+                <th width="100" class="h-blue">TMT Awal</th>
 
-                {{-- GAJI BERKALA --}}
-                <th width="130" class="h-kuning">TMT Gaji Terakhir</th>
-                <th width="130" class="h-kuning">Est. Naik Gaji</th>
+                {{-- 4. MONITORING (Header Biru juga biar seragam) --}}
+                <th width="110" class="h-blue">TMT Pangkat</th>
+                <th width="110" class="h-blue">Est Pangkat</th>
+
+                <th width="110" class="h-blue">TMT Gaji</th>
+                <th width="110" class="h-blue">Est Gaji</th>
                 
-                {{-- PENSIUN --}}
-                <th width="130" class="h-merah">Tgl Pensiun</th>
+                <th width="110" class="h-blue">Tgl Pensiun</th>
             </tr>
         </thead>
         <tbody>
             @foreach($data as $index => $row)
             <tr>
-                {{-- DATA IDENTITAS (POLOS) --}}
+                {{-- 1. IDENTITAS --}}
                 <td class="text-center">{{ $index + 1 }}</td>
-                <td>{{ $row->nama }}</td>
-                <td style="mso-number-format:'\@';">{{ $row->nip ? $row->nip : '-' }}</td>
+                <td><strong style="text-transform: uppercase;">{{ $row->nama }}</strong></td>
+                <td style="mso-number-format:'\@';">{{ $row->nip ?? '-' }}</td>
+                <td style="mso-number-format:'\@';">{{ $row->nik ?? '-' }}</td> {{-- Format text agar angka 0 tidak hilang --}}
+                <td>{{ $row->unit_kerja }}</td>
+
+                {{-- 2. BIODATA --}}
+                <td class="text-center">{{ $row->jenis_kelamin }}</td>
+                <td>{{ $row->tempat_lahir }}</td>
+                <td class="text-center">{{ $row->tanggal_lahir ? $row->tanggal_lahir->format('d/m/Y') : '-' }}</td>
+                <td class="text-center">{{ $row->pendidikan }}</td>
+                <td style="mso-number-format:'\@';">{{ $row->no_hp }}</td>
+
+                {{-- 3. JABATAN --}}
                 <td class="text-center">{{ $row->jenis }}</td>
                 <td class="text-center">{{ $row->golongan ?? '-' }}</td>
                 <td>{{ $row->jabatan }}</td>
-
-                {{-- TMT PENGANGKATAN (POLOS) --}}
                 <td class="text-center">
-                    @if(in_array($row->jenis, ['PNS', 'PPPK', 'PPPK Paruh Waktu']) && $row->tmt_pengangkatan)
-                        {{ $row->tmt_pengangkatan->format('d/m/Y') }}
-                    @else
-                        -
-                    @endif
+                    {{ $row->tmt_pengangkatan ? $row->tmt_pengangkatan->format('d/m/Y') : '-' }}
                 </td>
 
-                {{-- TMT PANGKAT TERAKHIR (POLOS) --}}
-                <td class="text-center">
-                    @if($row->jenis === 'PNS' && $row->tmt_pangkat_terakhir)
-                        {{ $row->tmt_pangkat_terakhir->format('d/m/Y') }}
-                    @else
-                        -
-                    @endif
-                </td>
-
-                {{-- ESTIMASI NAIK PANGKAT (Berwarna HANYA JIKA waktunya tiba) --}}
-                <td class="text-center {{ $row->status_pangkat ? 'due-biru' : '' }}">
+                {{-- 4. MONITORING (Background Berwarna jika Warning) --}}
+                
+                {{-- PANGKAT --}}
+                <td class="text-center">{{ $row->tmt_pangkat_terakhir ? $row->tmt_pangkat_terakhir->format('d/m/Y') : '-' }}</td>
+                <td class="text-center {{ $row->status_pangkat ? 'alert-pangkat due-date' : '' }}">
                     {{ $row->tgl_naik_pangkat ? $row->tgl_naik_pangkat->format('d/m/Y') : '-' }}
                 </td>
 
-                {{-- TMT GAJI TERAKHIR (POLOS) --}}
-                <td class="text-center">
-                    @if(in_array($row->jenis, ['PNS', 'PPPK']) && $row->tmt_gaji_terakhir)
-                        {{ $row->tmt_gaji_terakhir->format('d/m/Y') }}
-                    @else
-                        -
-                    @endif
-                </td>
-
-                {{-- ESTIMASI NAIK GAJI (Berwarna HANYA JIKA waktunya tiba) --}}
-                <td class="text-center {{ $row->status_gaji ? 'due-kuning' : '' }}">
+                {{-- GAJI --}}
+                <td class="text-center">{{ $row->tmt_gaji_terakhir ? $row->tmt_gaji_terakhir->format('d/m/Y') : '-' }}</td>
+                <td class="text-center {{ $row->status_gaji ? 'alert-gaji due-date' : '' }}">
                     {{ $row->tgl_naik_gaji ? $row->tgl_naik_gaji->format('d/m/Y') : '-' }}
                 </td>
 
-                {{-- PENSIUN (Berwarna HANYA JIKA waktunya tiba) --}}
-                <td class="text-center {{ $row->status_pensiun ? 'due-merah' : '' }}">
+                {{-- PENSIUN --}}
+                <td class="text-center {{ $row->status_pensiun ? 'alert-pensiun due-date' : '' }}">
                     {{ $row->tgl_pensiun ? $row->tgl_pensiun->format('d/m/Y') : '-' }}
                 </td>
             </tr>
