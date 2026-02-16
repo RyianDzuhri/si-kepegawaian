@@ -7,6 +7,7 @@ use App\Models\Pegawai\Pegawai;
 use App\Models\Pegawai\SuratKeputusan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; // WAJIB ADA UNTUK TRANSACTION
+use Illuminate\Support\Facades\Storage;
 
 class SKController extends Controller
 {
@@ -144,6 +145,31 @@ class SKController extends Controller
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
                 ->withInput();
+        }
+    }
+
+    /**
+     * Menghapus Data SK dan File Fisiknya
+     */
+    public function destroy($id)
+    {
+        try {
+            // 1. Cari Data SK berdasarkan ID
+            $sk = SuratKeputusan::findOrFail($id);
+
+            // 2. Hapus File Fisik (PDF/Gambar) dari penyimpanan
+            // Cek dulu apakah filenya ada biar tidak error
+            if ($sk->file_sk && Storage::disk('public')->exists($sk->file_sk)) {
+                Storage::disk('public')->delete($sk->file_sk);
+            }
+
+            // 3. Hapus Data dari Database
+            $sk->delete();
+
+            return redirect()->back()->with('success', 'Dokumen SK berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }
 }

@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pegawai', [ManajemenPegawaiController::class, 'index'])->name('manajemen-pegawai');
     Route::get('/pegawai/tambah', [ManajemenPegawaiController::class, 'create'])->name('tambah-pegawai');
     Route::get('/pegawai/export-pdf', [ManajemenPegawaiController::class, 'exportPdf'])->name('export-pdf-pegawai');
+    Route::get('/pegawai/export/excel', [ManajemenPegawaiController::class, 'exportExcel'])->name('export-excel-pegawai');
     Route::post('/pegawai/store', [ManajemenPegawaiController::class, 'store'])->name('simpan-pegawai');
     Route::get('/pegawai/{id}', [ManajemenPegawaiController::class, 'show'])->name('tampil-pegawai');
     Route::get('/pegawai/{id}/edit', [ManajemenPegawaiController::class, 'edit'])->name('edit-pegawai');
@@ -43,4 +44,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/sk', [SKController::class, 'index'])->name('arsip-sk');
     Route::get('/sk/create', [SKController::class, 'create'])->name('tambah-sk'); // URL bisa menerima ?pegawai_id=1
     Route::post('/sk', [SKController::class, 'store'])->name('simpan-sk');
+    Route::delete('/sk/hapus/{id}', [SKController::class, 'destroy'])->name('hapus-sk');
 }); 

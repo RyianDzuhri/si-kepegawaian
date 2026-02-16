@@ -6,24 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Pegawai\Pegawai;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Intervention\Image\Facades\Image; // WAJIB: Import Library Image
+use Intervention\Image\Facades\Image;
+use Carbon\Carbon;
 
 class ManajemenPegawaiController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Ambil daftar Unit Kerja Unik untuk dropdown filter
-        $listUnitKerja = Pegawai::select('unit_kerja')
-            ->whereNotNull('unit_kerja')
-            ->distinct()
-            ->orderBy('unit_kerja', 'asc')
-            ->pluck('unit_kerja');
-
-        // 2. Mulai Query Builder
+        $listUnitKerja = Pegawai::select('unit_kerja')->whereNotNull('unit_kerja')->distinct()->orderBy('unit_kerja', 'asc')->pluck('unit_kerja');
         $query = Pegawai::query();
 
-        // 3. Logika Pencarian
         if ($request->filled('q')) {
             $search = $request->input('q');
             $query->where(function($q) use ($search) {
@@ -33,18 +25,15 @@ class ManajemenPegawaiController extends Controller
             });
         }
 
-        // 4. Filter Status
         if ($request->filled('status')) {
             $query->where('jenis_pegawai', $request->input('status'));
         }
 
-        // 5. Filter Unit Kerja
         if ($request->filled('unit_kerja')) {
             $query->where('unit_kerja', $request->input('unit_kerja'));
         }
 
         $pegawai = $query->latest()->paginate(10); 
-
         return view('pegawai.index', compact('pegawai', 'listUnitKerja'));
     }
 
@@ -55,7 +44,6 @@ class ManajemenPegawaiController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi
         $data = $request->validate([
             'nik' => 'required|numeric|digits:16|unique:pegawai,nik',
             'nip' => 'nullable|string|max:20|unique:pegawai,nip',
@@ -72,27 +60,23 @@ class ManajemenPegawaiController extends Controller
             'jenis_pegawai' => 'required|string|max:50',
             'golongan' => 'nullable|string|max:20',
             'pendidikan_terakhir' => 'required|string|max:100',
+            
+            // --- FIELD TANGGAL ---
+            'tmt_pengangkatan' => 'required|date', // <--- BARU: WAJIB DIISI
             'tmt_pangkat_terakhir' => 'nullable|date',
             'tmt_gaji_berkala_terakhir' => 'nullable|date',
-            // Kita hapus validasi 'image' karena yang dikirim string base64
+            
             'foto_cropped' => 'nullable|string', 
         ]);
 
-        // LOGIKA SIMPAN FOTO HASIL CROP (BASE64)
+        // Auto Rapikan Jabatan (Huruf Besar Awal Kata)
+        $data['jabatan'] = ucwords(strtolower($request->jabatan));
+
         if ($request->filled('foto_cropped')) {
-            // 1. Decode string Base64 menjadi Image
             $image = Image::make($request->foto_cropped);
-            
-            // 2. Buat nama file unik
             $fileName = time() . '_' . uniqid() . '.png';
-            
-            // 3. Tentukan path penyimpanan (folder foto_pegawai di public disk)
             $path = 'foto_pegawai/' . $fileName;
-
-            // 4. Simpan file ke storage (Encode ke PNG)
             Storage::disk('public')->put($path, (string) $image->encode('png'));
-
-            // 5. Masukkan path ke array data untuk disimpan ke DB
             $data['foto_profil'] = $path;
         }
 
@@ -133,28 +117,28 @@ class ManajemenPegawaiController extends Controller
             'jenis_pegawai' => 'required|string|max:50',
             'golongan' => 'nullable|string|max:20',
             'pendidikan_terakhir' => 'required|string|max:100',
+            
+            // --- FIELD TANGGAL ---
+            'tmt_pengangkatan' => 'required|date',
             'tmt_pangkat_terakhir' => 'nullable|date',
             'tmt_gaji_berkala_terakhir' => 'nullable|date',
+            
             'foto_cropped' => 'nullable|string',
         ]);
 
-        // LOGIKA UPDATE FOTO HASIL CROP
+        // Auto Rapikan Jabatan
+        $data['jabatan'] = ucwords(strtolower($request->jabatan));
+
         if ($request->filled('foto_cropped')) {
-            // 1. Hapus foto lama jika ada
             if ($pegawai->foto_profil && Storage::disk('public')->exists($pegawai->foto_profil)) {
                 Storage::disk('public')->delete($pegawai->foto_profil);
             }
-
-            // 2. Decode & Simpan Foto Baru
             $image = Image::make($request->foto_cropped);
             $fileName = time() . '_' . uniqid() . '.png';
             $path = 'foto_pegawai/' . $fileName;
-
             Storage::disk('public')->put($path, (string) $image->encode('png'));
-
             $data['foto_profil'] = $path;
         } else {
-            // Jika tidak ada foto baru, jangan update field foto_profil (pakai yang lama)
             unset($data['foto_profil']);
         }
 
@@ -166,26 +150,83 @@ class ManajemenPegawaiController extends Controller
     public function destroy($id)
     {
         $pegawai = Pegawai::findOrFail($id);
-
         if ($pegawai->foto_profil && Storage::disk('public')->exists($pegawai->foto_profil)) {
             Storage::disk('public')->delete($pegawai->foto_profil);
         }
-
         $pegawai->delete();
-
         return redirect()->route('manajemen-pegawai')->with('success', 'Data pegawai berhasil dihapus');
     }
 
-    public function exportPdf()
+    // --- FITUR EXPORT EXCEL
+    public function exportExcel()
     {
-        ini_set('max_execution_time', 600); 
-        ini_set('memory_limit', '512M');
+        // Ambil semua data pegawai, urutkan per Status dulu baru Nama biar rapi
+        $pegawai = Pegawai::orderBy('jenis_pegawai', 'desc')->orderBy('nama', 'asc')->get();
 
-        $pegawai = Pegawai::orderBy('nama', 'asc')->get();
+        $data = $pegawai->map(function ($p) {
+            
+            // --- FILTER KELAYAKAN ---
+            $isEligiblePangkat = $p->jenis_pegawai === 'PNS'; 
+            $isEligibleGaji    = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
+            $isEligiblePensiun = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
 
-        $pdf = Pdf::loadView('pegawai.pdf_profil', compact('pegawai'));
-        $pdf->setPaper('a4', 'portrait');
+            // --- 1. LOGIKA PENSIUN ---
+            $tglPensiun = null;
+            $isPensiun = false;
 
-        return $pdf->download('Data_Profil_Pegawai_'.date('Y-m-d').'.pdf');
+            if ($isEligiblePensiun && $p->tanggal_lahir) {
+                $batasPensiun = 58; 
+                // Cek jika jabatan mengandung kata "Kepala Dinas"
+                if (stripos($p->jabatan, 'Kepala Dinas') !== false) {
+                    $batasPensiun = 60;
+                }
+                
+                $tglPensiun = Carbon::parse($p->tanggal_lahir)->addYears($batasPensiun);
+                $isPensiun = Carbon::now()->addYear()->greaterThanOrEqualTo($tglPensiun);
+            }
+
+            // --- 2. LOGIKA NAIK PANGKAT (PNS Only) ---
+            $nextPangkat = null;
+            $isNaikPangkat = false;
+            
+            if ($isEligiblePangkat && $p->tmt_pangkat_terakhir) {
+                $nextPangkat = Carbon::parse($p->tmt_pangkat_terakhir)->addYears(4);
+                $isNaikPangkat = $nextPangkat->isPast() || $nextPangkat->isToday();
+            }
+
+            // --- 3. LOGIKA GAJI BERKALA (PNS & PPPK) ---
+            $nextGaji = null;
+            $isNaikGaji = false;
+            
+            if ($isEligibleGaji && $p->tmt_gaji_berkala_terakhir) {
+                $nextGaji = Carbon::parse($p->tmt_gaji_berkala_terakhir)->addYears(2);
+                $isNaikGaji = $nextGaji->isPast() || $nextGaji->isToday();
+            }
+
+            return (object) [
+                'nama' => $p->nama,
+                'nip'  => $p->nip,
+                'jenis' => $p->jenis_pegawai,
+                'golongan' => $p->golongan,
+                'jabatan' => $p->jabatan,
+                
+                'tmt_pengangkatan' => $p->tmt_pengangkatan ? Carbon::parse($p->tmt_pengangkatan) : null,
+                
+                // --- DATA TMT TERAKHIR (BARU DITAMBAHKAN) ---
+                'tmt_pangkat_terakhir' => $p->tmt_pangkat_terakhir ? Carbon::parse($p->tmt_pangkat_terakhir) : null,
+                'tmt_gaji_terakhir' => $p->tmt_gaji_berkala_terakhir ? Carbon::parse($p->tmt_gaji_berkala_terakhir) : null,
+                
+                'tgl_naik_pangkat' => $nextPangkat,
+                'status_pangkat' => $isNaikPangkat,
+                
+                'tgl_naik_gaji' => $nextGaji,
+                'status_gaji' => $isNaikGaji,
+
+                'tgl_pensiun' => $tglPensiun,
+                'status_pensiun' => $isPensiun
+            ];
+        });
+
+        return view('pegawai.export-excel', compact('data'));
     }
 }

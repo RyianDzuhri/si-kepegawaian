@@ -2,34 +2,37 @@
 
 @section('content')
 
+{{-- HEADER HALAMAN --}}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h3 class="fw-bold text-dark">Arsip Digital SK</h3>
-        <p class="text-muted mb-0">Cari dan unduh dokumen SK pegawai.</p>
+        <p class="text-muted mb-0">Cari, kelola, dan unduh dokumen SK pegawai.</p>
     </div>
-    <a href="{{ route('tambah-sk') }}" class="btn btn-success">
+    <a href="{{ route('tambah-sk') }}" class="btn btn-success shadow-sm">
         <i class="fas fa-cloud-upload-alt me-2"></i>Upload SK Baru
     </a>
 </div>
 
-<div class="card shadow-sm border-0">
+{{-- CARD UTAMA --}}
+<div class="card shadow-sm border-0 mb-5">
     <div class="card-body">
         
+        {{-- FORM FILTER PENCARIAN --}}
         <form action="{{ url()->current() }}" method="GET">
-            <div class="row g-2 mb-4 bg-light p-3 rounded align-items-end">
+            <div class="row mb-4 g-2">
                 
+                {{-- 1. Cari Kata Kunci --}}
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold text-muted">Cari Kata Kunci</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                        <span class="input-group-text bg-white text-muted"><i class="fas fa-search"></i></span>
                         <input type="text" name="q" class="form-control" 
-                               placeholder="NIP, Nama, atau Nomor SK..." 
+                               placeholder="Cari NIP, Nama, atau No. SK..." 
                                value="{{ request('q') }}">
                     </div>
                 </div>
 
+                {{-- 2. Filter Kategori --}}
                 <div class="col-md-3">
-                    <label class="form-label small fw-bold text-muted">Kategori SK</label>
                     <select name="jenis_sk" class="form-select">
                         <option value="">Semua Kategori</option>
                         @foreach(['SK CPNS', 'SK Kenaikan Pangkat', 'SK Gaji Berkala', 'SK Jabatan'] as $jenis)
@@ -40,86 +43,119 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold text-muted">Tahun SK</label>
+                {{-- 3. Filter Tahun --}}
+                <div class="col-md-2">
                     <input type="number" name="tahun" class="form-control" 
-                           placeholder="Contoh: 2024" 
+                           placeholder="Tahun (Cth: 2024)" 
                            value="{{ request('tahun') }}">
                 </div>
 
-                <div class="col-md-2">
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-filter me-1"></i> Terapkan
-                        </button>
-                        
-                        @if(request()->anyFilled(['q', 'jenis_sk', 'tahun']))
-                            <a href="{{ url()->current() }}" class="btn btn-outline-secondary btn-sm">Reset Filter</a>
-                        @endif
-                    </div>
+                {{-- 4. Tombol Filter --}}
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-dark w-100" title="Terapkan Filter">
+                        <i class="fas fa-filter"></i>
+                    </button>
                 </div>
+
+                {{-- 5. Tombol Reset --}}
+                @if(request()->anyFilled(['q', 'jenis_sk', 'tahun']))
+                <div class="col-md-2">
+                    <a href="{{ url()->current() }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-undo me-1"></i> Reset
+                    </a>
+                </div>
+                @endif
             </div>
         </form>
 
+        {{-- TABEL DATA --}}
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
                         <th width="5%">No</th>
-                        <th width="25%">Pemilik SK (Pegawai)</th>
+                        <th width="30%">Pemilik SK (Pegawai)</th>
                         <th width="25%">Detail Dokumen</th>
-                        <th width="15%">Tanggal Terbit</th>
-                        <th width="15%">File</th>
-                        <th width="15%">Aksi</th>
+                        <th width="15%">Tanggal SK</th>
+                        <th width="10%">File</th>
+                        <th width="15%" class="text-end pe-3">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($suratKeputusan as $index => $sk)
                         <tr>
                             <td>{{ $suratKeputusan->firstItem() + $index }}</td>
+                            
+                            {{-- KOLOM PEGAWAI (TANPA PP/AVATAR) --}}
                             <td>
                                 @if($sk->pegawai)
-                                    <div class="fw-bold">{{ $sk->pegawai->nama }}</div>
-                                    <small class="text-muted">{{ $sk->pegawai->nip }}</small>
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ $sk->pegawai->nama }}</div>
+                                        <small class="text-muted d-block">{{ $sk->pegawai->nip ?? 'Non-ASN' }}</small>
+                                    </div>
                                 @else
-                                    <span class="text-danger fst-italic small">Data Pegawai Terhapus</span>
+                                    <div class="text-danger small fst-italic">
+                                        <i class="fas fa-user-slash me-1"></i> Pegawai Terhapus
+                                    </div>
                                 @endif
                             </td>
+
+                            {{-- KOLOM DETAIL SK --}}
                             <td>
-                                <span class="badge bg-primary bg-opacity-10 text-primary mb-1">{{ $sk->jenis_sk }}</span><br>
-                                <small class="text-dark">No: {{ $sk->nomor_sk }}</small>
+                                @php
+                                    $badgeColor = match($sk->jenis_sk) {
+                                        'SK Kenaikan Pangkat' => 'bg-warning text-dark',
+                                        'SK Gaji Berkala' => 'bg-success text-white',
+                                        'SK Jabatan' => 'bg-info text-dark',
+                                        'SK CPNS' => 'bg-primary text-white',
+                                        default => 'bg-secondary text-white'
+                                    };
+                                @endphp
+                                <span class="badge {{ $badgeColor }} bg-opacity-75 mb-1">{{ $sk->jenis_sk }}</span>
+                                <div class="small fw-bold text-dark text-truncate" style="max-width: 250px;" title="{{ $sk->nomor_sk }}">
+                                    No: {{ $sk->nomor_sk }}
+                                </div>
                             </td>
+
+                            {{-- KOLOM TANGGAL --}}
                             <td>
-                                {{ \Carbon\Carbon::parse($sk->tanggal_sk)->isoFormat('D MMM YYYY') }}
+                                <div class="text-dark">
+                                    {{ \Carbon\Carbon::parse($sk->tanggal_sk)->isoFormat('D MMM Y') }}
+                                </div>
+                                <small class="text-muted">
+                                    TMT: {{ \Carbon\Carbon::parse($sk->tmt_sk)->isoFormat('D MMM Y') }}
+                                </small>
                             </td>
+
+                            {{-- KOLOM FILE --}}
                             <td>
                                 @if($sk->file_sk)
-                                    <div class="d-flex align-items-center text-danger">
-                                        <i class="fas fa-file-pdf fa-lg me-2"></i>
-                                        <small class="text-truncate" style="max-width: 150px;" title="{{ basename($sk->file_sk) }}">
-                                            {{ basename($sk->file_sk) }}
-                                        </small>
+                                    <div class="d-flex align-items-center" title="{{ basename($sk->file_sk) }}">
+                                        <i class="fas fa-file-pdf fa-lg text-danger me-2"></i>
+                                        <small class="text-muted fw-bold">PDF</small>
                                     </div>
                                 @else
                                     <span class="text-muted small">-</span>
                                 @endif
                             </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    @if($sk->file_sk)
-                                        <a href="{{ asset('storage/' . $sk->file_sk) }}" target="_blank" class="btn btn-sm btn-dark" title="Download">
-                                            <i class="fas fa-download"></i> Unduh
-                                        </a>
-                                    @endif
-                                </div>
+
+                            {{-- KOLOM AKSI --}}
+                            <td class="text-end pe-3">
+                                @if($sk->file_sk)
+                                    <a href="{{ asset('storage/' . $sk->file_sk) }}" target="_blank" class="btn btn-sm btn-outline-dark shadow-sm">
+                                        <i class="fas fa-download me-1"></i> Unduh
+                                    </a>
+                                @else
+                                    <button class="btn btn-sm btn-light border text-muted" disabled>No File</button>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="6" class="text-center py-5 text-muted">
-                                <div class="mb-2"><i class="fas fa-folder-open fa-3x opacity-50"></i></div>
-                                <h5>Belum ada dokumen SK ditemukan.</h5>
-                                <small>Coba ubah kata kunci pencarian atau upload SK baru.</small>
+                                <div class="mb-3"><i class="fas fa-folder-open fa-3x opacity-25"></i></div>
+                                <h6 class="fw-bold">Tidak ada dokumen ditemukan.</h6>
+                                <small>Coba ubah kata kunci atau filter pencarian Anda.</small>
                             </td>
                         </tr>
                     @endforelse
@@ -127,6 +163,7 @@
             </table>
         </div>
 
+        {{-- PAGINATION --}}
         <div class="d-flex justify-content-end mt-4">
             {{ $suratKeputusan->withQueryString()->links() }}
         </div>
