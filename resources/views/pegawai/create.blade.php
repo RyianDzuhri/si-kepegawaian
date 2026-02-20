@@ -86,7 +86,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('simpan-pegawai') }}" method="POST" enctype="multipart/form-data" onsubmit="return disableBtnSubmit(this)"> {{-- <--- TAMBAHKAN INI --}}>
+                    <form action="{{ route('simpan-pegawai') }}" method="POST" enctype="multipart/form-data" onsubmit="return disableBtnSubmit(this)"> {{-- <--- TAMBAHKAN INI --}}
                         @csrf
 
                         {{-- BAGIAN I: IDENTITAS --}}

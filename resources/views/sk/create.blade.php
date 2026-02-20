@@ -2,8 +2,12 @@
 
 @push('styles')
 <style>
-    body, .form-control, .form-select, select, option, .btn, h4, h6, label, p, small, .alert, input, textarea {
+    /* === SERAGAMKAN FONT === */
+    body {
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    }
+    .form-control, .form-select, select, option, optgroup, .btn, h4, h6, label, p, small, .alert, input, textarea {
+        font-family: inherit !important;
     }
 
     .form-control, .form-select {
@@ -60,7 +64,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('simpan-sk') }}" method="POST" enctype="multipart/form-data" onsubmit="return disableBtnSubmit(this)"> {{-- <--- TAMBAHKAN INI --}}>
+                    <form action="{{ route('simpan-sk') }}" method="POST" enctype="multipart/form-data" onsubmit="return disableBtnSubmit(this)">
                         @csrf
                         
                         {{-- BAGIAN 1: PILIH PEGAWAI --}}
@@ -77,11 +81,14 @@
                                         <div class="flex-grow-1">
                                             <h6 class="fw-bold text-primary mb-0">{{ $selectedPegawai->nama }}</h6>
                                             <small class="text-muted">
-                                                {{ $selectedPegawai->nip ? 'NIP: ' . $selectedPegawai->nip : 'Non-ASN' }} 
+                                                <strong>{{ $selectedPegawai->jenis_pegawai }}</strong> 
                                                 &bull; {{ $selectedPegawai->jabatan }}
                                             </small>
                                         </div>
+                                        
+                                        {{-- HIDDEN INPUT UNTUK ID & JENIS PEGAWAI --}}
                                         <input type="hidden" name="pegawai_id" value="{{ $selectedPegawai->id }}">
+                                        <input type="hidden" id="current_jenis_pegawai" value="{{ $selectedPegawai->jenis_pegawai }}">
                                         
                                         <a href="{{ route('tambah-sk') }}" class="btn btn-sm btn-white border text-danger ms-2" title="Ganti Pegawai">
                                             <i class="fas fa-times"></i>
@@ -92,11 +99,12 @@
                                 {{-- Jika akses langsung, tampilkan Dropdown Pencarian --}}
                                 <div class="input-group">
                                     <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                                    <select name="pegawai_id" class="form-select form-select-lg bg-light" required>
-                                        <option value="">-- Cari Nama Pegawai --</option>
+                                    <select name="pegawai_id" id="pegawai_select" class="form-select form-select-lg bg-light" required onchange="toggleInputs()">
+                                        <option value="" data-jenis="">-- Cari Nama Pegawai --</option>
                                         @foreach ($pegawaiList as $pegawai)
-                                            <option value="{{ $pegawai->id }}">
-                                                {{ $pegawai->nama }} ({{ $pegawai->nip ?? 'Non-ASN' }})
+                                            {{-- SIMPAN JENIS PEGAWAI DI DATA ATTRIBUTE --}}
+                                            <option value="{{ $pegawai->id }}" data-jenis="{{ $pegawai->jenis_pegawai }}">
+                                                {{ $pegawai->nama }} - {{ $pegawai->jenis_pegawai }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -151,60 +159,13 @@
                                     <i class="fas fa-magic me-2"></i>Update Otomatis Data Pegawai
                                 </h6>
                                 
-                                {{-- A. INPUT GOLONGAN (Hanya utk Kenaikan Pangkat) --}}
+                                {{-- A. INPUT GOLONGAN (Hanya utk Kenaikan Pangkat PNS & PPPK) --}}
                                 <div id="input_golongan" class="row mb-3 d-none">
                                     <div class="col-md-12">
                                         <label class="form-label fw-semibold">Naik ke Golongan Berapa?</label>
-                                        <select name="golongan_baru" class="form-select border-success">
+                                        <select name="golongan_baru" id="golongan_baru" class="form-select border-success">
                                             <option value="">-- Pilih Golongan Baru --</option>
-                                            
-                                            {{-- OPSI PNS --}}
-                                            <optgroup label="PNS - Golongan I (Juru)">
-                                                <option value="I/a">I/a - Juru Muda</option>
-                                                <option value="I/b">I/b - Juru Muda Tk. I</option>
-                                                <option value="I/c">I/c - Juru</option>
-                                                <option value="I/d">I/d - Juru Tk. I</option>
-                                            </optgroup>
-                                            <optgroup label="PNS - Golongan II (Pengatur)">
-                                                <option value="II/a">II/a - Pengatur Muda</option>
-                                                <option value="II/b">II/b - Pengatur Muda Tk. I</option>
-                                                <option value="II/c">II/c - Pengatur</option>
-                                                <option value="II/d">II/d - Pengatur Tk. I</option>
-                                            </optgroup>
-                                            <optgroup label="PNS - Golongan III (Penata)">
-                                                <option value="III/a">III/a - Penata Muda</option>
-                                                <option value="III/b">III/b - Penata Muda Tk. I</option>
-                                                <option value="III/c">III/c - Penata</option>
-                                                <option value="III/d">III/d - Penata Tk. I</option>
-                                            </optgroup>
-                                            <optgroup label="PNS - Golongan IV (Pembina)">
-                                                <option value="IV/a">IV/a - Pembina</option>
-                                                <option value="IV/b">IV/b - Pembina Tk. I</option>
-                                                <option value="IV/c">IV/c - Pembina Utama Muda</option>
-                                                <option value="IV/d">IV/d - Pembina Utama Madya</option>
-                                                <option value="IV/e">IV/e - Pembina Utama</option>
-                                            </optgroup>
-
-                                            {{-- OPSI PPPK (LENGKAP) --}}
-                                            <optgroup label="PPPK (Golongan I - XVII)">
-                                                <option value="I">Golongan I</option>
-                                                <option value="II">Golongan II</option>
-                                                <option value="III">Golongan III</option>
-                                                <option value="IV">Golongan IV</option>
-                                                <option value="V">Golongan V</option>
-                                                <option value="VI">Golongan VI</option>
-                                                <option value="VII">Golongan VII</option>
-                                                <option value="VIII">Golongan VIII</option>
-                                                <option value="IX">Golongan IX</option>
-                                                <option value="X">Golongan X</option>
-                                                <option value="XI">Golongan XI</option>
-                                                <option value="XII">Golongan XII</option>
-                                                <option value="XIII">Golongan XIII</option>
-                                                <option value="XIV">Golongan XIV</option>
-                                                <option value="XV">Golongan XV</option>
-                                                <option value="XVI">Golongan XVI</option>
-                                                <option value="XVII">Golongan XVII</option>
-                                            </optgroup>
+                                            {{-- Opsi akan di-generate via Javascript --}}
                                         </select>
                                     </div>
                                 </div>
@@ -245,14 +206,14 @@
                                     </div>
                                 </div>
                                 <h6 class="fw-bold mb-1">Upload File SK</h6>
-                                <p class="text-muted small mb-3">Format PDF atau Gambar (JPG/PNG). Maks 2MB.</p>
+                                <p class="text-muted small mb-3">Format PDF atau Gambar (JPG/PNG). Maks 5MB.</p>
                                 
                                 <input type="file" name="file_sk" id="file_sk" class="form-control" accept=".pdf,.jpg,.jpeg,.png" required>
                             </div>
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary py-3 fw-bold shadow-sm">
+                            <button type="submit" id="btnSubmit" class="btn btn-primary py-3 fw-bold shadow-sm">
                                 <i class="fas fa-save me-2"></i> Simpan Dokumen
                             </button>
                         </div>
@@ -269,8 +230,66 @@
 
 @push('scripts')
 <script>
+    // Data List Golongan
+    const dataPNS = {
+        "Golongan I (Juru)": [{val:"I/a",text:"I/a - Juru Muda"},{val:"I/b",text:"I/b - Juru Muda Tk. I"},{val:"I/c",text:"I/c - Juru"},{val:"I/d",text:"I/d - Juru Tk. I"}],
+        "Golongan II (Pengatur)": [{val:"II/a",text:"II/a - Pengatur Muda"},{val:"II/b",text:"II/b - Pengatur Muda Tk. I"},{val:"II/c",text:"II/c - Pengatur"},{val:"II/d",text:"II/d - Pengatur Tk. I"}],
+        "Golongan III (Penata)": [{val:"III/a",text:"III/a - Penata Muda"},{val:"III/b",text:"III/b - Penata Muda Tk. I"},{val:"III/c",text:"III/c - Penata"},{val:"III/d",text:"III/d - Penata Tk. I"}],
+        "Golongan IV (Pembina)": [{val:"IV/a",text:"IV/a - Pembina"},{val:"IV/b",text:"IV/b - Pembina Tk. I"},{val:"IV/c",text:"IV/c - Pembina Utama Muda"},{val:"IV/d",text:"IV/d - Pembina Utama Madya"},{val:"IV/e",text:"IV/e - Pembina Utama"}]
+    };
+    const dataPPPK = [
+        {val:"I",text:"I"},{val:"II",text:"II"},{val:"III",text:"III"},{val:"IV",text:"IV"},
+        {val:"V",text:"V"},{val:"VI",text:"VI"},{val:"VII",text:"VII"},{val:"VIII",text:"VIII"},
+        {val:"IX",text:"IX"},{val:"X",text:"X"},{val:"XI",text:"XI"},{val:"XII",text:"XII"},
+        {val:"XIII",text:"XIII"},{val:"XIV",text:"XIV"},{val:"XV",text:"XV"},{val:"XVI",text:"XVI"},{val:"XVII",text:"XVII"}
+    ];
+
+    // Fungsi membaca Jenis Pegawai yang terpilih
+    function getJenisPegawai() {
+        const selectEl = document.getElementById('pegawai_select');
+        if (selectEl) {
+            // Jika via dropdown pencarian
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            return selectedOption ? selectedOption.getAttribute('data-jenis') : '';
+        } else {
+            // Jika via hidden input (Pre-selected detail pegawai)
+            const hiddenEl = document.getElementById('current_jenis_pegawai');
+            return hiddenEl ? hiddenEl.value : '';
+        }
+    }
+
+    // Fungsi Render Golongan ke Select HTML
+    function renderGolongan(jenisPegawai) {
+        const selectGolongan = document.getElementById('golongan_baru');
+        selectGolongan.innerHTML = '<option value="">-- Pilih Golongan Baru --</option>';
+
+        if (jenisPegawai === 'PNS') {
+            for (const [groupLabel, items] of Object.entries(dataPNS)) {
+                let optgroup = document.createElement('optgroup');
+                optgroup.label = groupLabel;
+                items.forEach(item => {
+                    let option = document.createElement('option');
+                    option.value = item.val; option.textContent = item.text;
+                    optgroup.appendChild(option);
+                });
+                selectGolongan.appendChild(optgroup);
+            }
+        } else if (jenisPegawai === 'PPPK') {
+            let optgroup = document.createElement('optgroup');
+            optgroup.label = "PPPK (Golongan I - XVII)";
+            dataPPPK.forEach(item => {
+                let option = document.createElement('option');
+                option.value = item.val; option.textContent = "Golongan " + item.text;
+                optgroup.appendChild(option);
+            });
+            selectGolongan.appendChild(optgroup);
+        }
+    }
+
     function toggleInputs() {
-        const jenis = document.getElementById('jenis_sk').value;
+        const jenisSK = document.getElementById('jenis_sk').value;
+        const jenisPegawai = getJenisPegawai();
+        
         const container = document.getElementById('dynamic_inputs');
         const inputGol = document.getElementById('input_golongan');
         const inputJab = document.getElementById('input_jabatan');
@@ -280,22 +299,49 @@
         inputGol.classList.add('d-none');
         inputJab.classList.add('d-none');
 
+        // Jika user belum pilih pegawai, jangan proses
+        if (!jenisPegawai) return;
+
         // === LOGIKA TAMPILAN ===
         
-        // 1. Kenaikan Pangkat -> Butuh Input Golongan
-        if (jenis === 'SK Kenaikan Pangkat') {
-            container.classList.remove('d-none');
-            inputGol.classList.remove('d-none');
+        // 1. Kenaikan Pangkat
+        if (jenisSK === 'SK Kenaikan Pangkat') {
+            // HANYA MUNCUL JIKA PNS ATAU PPPK PENUH WAKTU
+            if (jenisPegawai === 'PNS' || jenisPegawai === 'PPPK') {
+                container.classList.remove('d-none');
+                inputGol.classList.remove('d-none');
+                renderGolongan(jenisPegawai); // Load dropdown sesuai jenis
+            }
         } 
         // 2. Mutasi Jabatan -> Butuh Input Jabatan & Unit Kerja
-        else if (jenis === 'SK Jabatan') {
+        else if (jenisSK === 'SK Jabatan') {
             container.classList.remove('d-none');
             inputJab.classList.remove('d-none');
         } 
         // 3. KGB / CPNS / PNS -> Cuma butuh Update TMT (Cukup Checkbox)
-        else if (['SK Gaji Berkala', 'SK PNS', 'SK CPNS'].includes(jenis)) {
-            container.classList.remove('d-none');
+        else if (['SK Gaji Berkala', 'SK PNS', 'SK CPNS'].includes(jenisSK)) {
+            // KGB tidak berlaku untuk Honorer & Paruh Waktu
+            if (jenisSK === 'SK Gaji Berkala' && (jenisPegawai === 'Honorer' || jenisPegawai === 'PPPK Paruh Waktu')) {
+                container.classList.add('d-none');
+            } else {
+                container.classList.remove('d-none');
+            }
         }
     }
+
+    // Fungsi Mencegah Double Submit
+    function disableBtnSubmit(form) {
+        const btn = document.getElementById('btnSubmit');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Mengupload...';
+        btn.setAttribute('disabled', 'disabled');
+        return true;
+    }
+
+    // Jalankan saat load jika ada nilai default
+    window.onload = function() {
+        if (document.getElementById('jenis_sk').value !== "") {
+            toggleInputs();
+        }
+    };
 </script>
 @endpush
