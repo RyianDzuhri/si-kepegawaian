@@ -38,7 +38,7 @@
         .card {
             /* Latar belakang putih semi-transparan.
                Ubah angka 0.65 (antara 0.1 sampai 0.9) untuk mengatur tingkat keburaman. */
-            background-color: rgba(255, 255, 255, 0.65) !important;
+            background-color: rgba(255, 255, 255, 0.3) !important;
             
             /* INI KUNCINYA: Efek blur pada background di belakang card */
             backdrop-filter: blur(20px);
