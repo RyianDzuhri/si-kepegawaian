@@ -72,7 +72,6 @@
         <div class="card-body p-4 p-md-5">
             <div class="text-center mb-4">
                 <h4 class="mb-1 logo fw-bolder"><i class="fas fa-building me-2"></i>SI-KGB Kendari</h4>
-                <small class="text-dark fw-semibold opacity-75">Manajemen Kepegawaian</small>
             </div>
 
             @yield('content')
