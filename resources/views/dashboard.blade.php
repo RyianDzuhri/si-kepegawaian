@@ -5,7 +5,7 @@
 {{-- HEADER --}}
 <div class="mb-4">
     <h3 class="fw-bold text-dark">Dashboard</h3>
-    <p class="text-muted">Selamat datang di Sistem Informasi Kepegawaian.</p>
+    <p class="text-muted">Melayani dengan hati, mengabdi untuk negeri. Selamat bertugas hari ini!</p>
 </div>
 
 {{-- BARIS 1: 2 KARTU UTAMA --}}

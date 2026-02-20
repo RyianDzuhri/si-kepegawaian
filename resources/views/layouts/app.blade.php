@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi Kepegawaian</title>
+    <title>SI-KGB Kendari</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -80,8 +80,8 @@
     {{-- SIDEBAR --}}
     <div class="sidebar d-flex flex-column flex-shrink-0 p-0" style="width: 260px;">
         <div class="sidebar-header">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-building me-2"></i>SI-PEGAWAI</h5>
-            <small class="text-light opacity-75">Manajemen Kepegawaian</small>
+            <h5 class="mb-0 fw-bold"><i class="fas fa-building me-2"></i>SI-KGB Kendari</h5>
+            <small class="text-light opacity-75">Sistem Informasi Kenaikan Gaji Berkala Kendari</small>
         </div>
         
         <div class="mt-3">
