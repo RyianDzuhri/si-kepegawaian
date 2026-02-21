@@ -161,7 +161,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="5" class="text-center text-muted py-4"><i class="fas fa-folder-open mb-2 fa-2x text-light"></i><br>Tidak ada jadwal terdekat.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-4"><i class="fas fa-folder-open mb-2 fa-2x text-secondary opacity-25"></i><br>Tidak ada jadwal terdekat.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -205,7 +205,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="5" class="text-center text-muted py-4"><i class="fas fa-folder-open mb-2 fa-2x text-light"></i><br>Tidak ada jadwal terdekat.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-4"><i class="fas fa-folder-open mb-2 fa-2x text-secondary opacity-25"></i><br>Tidak ada jadwal terdekat.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -256,7 +256,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="5" class="text-center text-muted py-4"><i class="fas fa-folder-open mb-2 fa-2x text-light"></i><br>Belum ada pegawai di masa persiapan pensiun.</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-4"><i class="fas fa-folder-open mb-2 fa-2x text-secondary opacity-25"></i><br>Belum ada pegawai di masa persiapan pensiun.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
