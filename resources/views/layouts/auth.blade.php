@@ -13,7 +13,7 @@
         body { 
             background-color: #f5f7fa;
             /* Pastikan gambar background ada di folder public/images/ */
-            background-image: url("{{ asset('images/bg-login.jpg') }}");
+            background-image: url("{{ asset('images/background (1).jpg') }}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
