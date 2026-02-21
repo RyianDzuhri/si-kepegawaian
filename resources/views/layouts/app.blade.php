@@ -13,10 +13,30 @@
     @stack('styles')
 
     <style>
+
         body {
-            background-color: #f5f7fa;
-            overflow-x: hidden;
+        /* Pasang gambar sebagai background */
+        background-image: url("{{ asset('images/bg-main.jpeg') }}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed; /* Agar gambar tidak ikut scroll */
+        background-repeat: no-repeat;
+        position: relative;
+        background-color: #f5f7fa;
+        overflow-x: hidden;
         }
+
+        body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(248, 249, 250, 0.90); /* Warna putih/abu terang dengan transparansi 90% */
+        z-index: -1; /* Pastikan overlay berada di belakang konten utama, tapi di depan gambar */
+    }
+
         
         /* Gaya Sidebar */
         .sidebar {
@@ -24,11 +44,13 @@
             position: sticky; /* Membuat elemen menempel */
             top: 0; /* Menempel di bagian atas layar */
             overflow-y: auto; /* Agar sidebar bisa di-scroll sendiri jika menunya panjang */
-            
             background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
             color: white;
             transition: all 0.3s;
             z-index: 100; /* Memastikan sidebar di atas elemen lain */
+            background-color: #ffffff; /* Atau warna solid lainnya yang sesuai dengan desainmu */
+            /* Tambahkan shadow jika perlu agar terpisah dari background utama */
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
         }
         
         /* Custom Scrollbar untuk Sidebar */
@@ -80,11 +102,21 @@
     
     {{-- SIDEBAR --}}
     <div class="sidebar d-flex flex-column flex-shrink-0 p-0" style="width: 260px;">
-        <div class="sidebar-header">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-building me-2"></i>SI-KGB Kendari</h5>
-            <small class="text-light opacity-75">Sistem Informasi Kenaikan Gaji Berkala Kendari</small>
+        
+        {{-- HEADER SIDEBAR (Sudah Rata Tengah Berkelompok) --}}
+        <div class="sidebar-header d-flex justify-content-center py-3 border-bottom border-secondary border-opacity-25">
+            <div style="width: 85%;"> 
+                <h5 class="mb-0 fw-bold d-flex align-items-center">
+                    <img src="{{ asset('images/Lambang_Kota_Kendari.png') }}" alt="Logo Kota Kendari" class="me-2" style="width: 35px; height: auto;">
+                    SI-KGB Kendari
+                </h5>
+                <small class="text-light opacity-75 mt-2 d-block" style="line-height: 1.3;">
+                    Sistem Informasi Kenaikan Gaji Berkala Kendari
+                </small>
+            </div>
         </div>
         
+        {{-- MENU UTAMA --}}
         <div class="mt-3">
             <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="fas fa-tachometer-alt me-2" style="width: 20px;"></i> Dashboard
@@ -101,11 +133,12 @@
             </a>
         </div>
 
+        {{-- BAGIAN BAWAH (LOGOUT) --}}
         <div class="mt-auto p-3">
             <form method="POST" action="{{ route('logout') }}" id="logout-form">
                 @csrf
                 <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                class="d-flex align-items-center text-danger rounded bg-dark bg-opacity-25 p-2 text-decoration-none">
+                   class="d-flex align-items-center text-danger rounded bg-dark bg-opacity-25 p-2 text-decoration-none transition-hover">
                     <i class="fas fa-sign-out-alt me-2"></i> Logout
                 </a>
             </form>
