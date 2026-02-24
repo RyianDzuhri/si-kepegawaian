@@ -159,6 +159,7 @@ class ManajemenPegawaiController extends Controller
 
     // --- FITUR EXPORT EXCEL
     // --- FITUR EXPORT EXCEL (DIPERBARUI) ---
+    // --- FITUR EXPORT EXCEL (SINKRONISASI LOGIKA DASHBOARD H-60) ---
     public function exportExcel()
     {
         // Ambil data, urutkan: Status (PNS duluan) -> Unit Kerja -> Nama
@@ -169,49 +170,66 @@ class ManajemenPegawaiController extends Controller
 
         $data = $pegawai->map(function ($p) {
             
-            // --- LOGIKA PERHITUNGAN TANGGAL (SAMA SEPERTI SEBELUMNYA) ---
+            // --- LOGIKA PERHITUNGAN TANGGAL (SINKRON DASHBOARD) ---
             $isEligiblePangkat = $p->jenis_pegawai === 'PNS'; 
-            $isEligibleGaji    = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
-            $isEligiblePensiun = in_array($p->jenis_pegawai, ['PNS', 'PPPK']);
+            $isEligibleGaji    = in_array($p->jenis_pegawai, ['PNS', 'PPPK', 'PPPK Paruh Waktu']);
+            $isEligiblePensiun = true; // Anggap semua bisa pensiun, atau sesuaikan jika honorer tidak
 
+            $today = Carbon::now();
+
+            // 1. LOGIKA PENSIUN (Tahun ini / <= 365 hari / Terlewat)
             $tglPensiun = null;
             $isPensiun = false;
-
             if ($isEligiblePensiun && $p->tanggal_lahir) {
                 $batasPensiun = 58; 
                 if (stripos($p->jabatan, 'Kepala Dinas') !== false) {
                     $batasPensiun = 60;
                 }
                 $tglPensiun = Carbon::parse($p->tanggal_lahir)->addYears($batasPensiun);
-                $isPensiun = Carbon::now()->addYear()->greaterThanOrEqualTo($tglPensiun);
+                
+                // diffInDays(..., false) menghasilkan angka negatif jika sudah lewat
+                // Jadi <= 365 akan menangkap yang kurang dari setahun ATAU yang sudah minus (lewat)
+                if ($today->diffInDays($tglPensiun, false) <= 365) {
+                    $isPensiun = true;
+                }
             }
 
+            // 2. LOGIKA NAIK PANGKAT (H-60 atau Terlewat)
             $nextPangkat = null;
             $isNaikPangkat = false;
             if ($isEligiblePangkat && $p->tmt_pangkat_terakhir) {
                 $nextPangkat = Carbon::parse($p->tmt_pangkat_terakhir)->addYears(4);
-                $isNaikPangkat = $nextPangkat->isPast() || $nextPangkat->isToday();
+                
+                // Sisa waktu <= 60 hari
+                if ($today->diffInDays($nextPangkat, false) <= 60) {
+                    $isNaikPangkat = true;
+                }
             }
 
+            // 3. LOGIKA GAJI BERKALA (H-60 atau Terlewat)
             $nextGaji = null;
             $isNaikGaji = false;
             if ($isEligibleGaji && $p->tmt_gaji_berkala_terakhir) {
                 $nextGaji = Carbon::parse($p->tmt_gaji_berkala_terakhir)->addYears(2);
-                $isNaikGaji = $nextGaji->isPast() || $nextGaji->isToday();
+                
+                // Sisa waktu <= 60 hari
+                if ($today->diffInDays($nextGaji, false) <= 60) {
+                    $isNaikGaji = true;
+                }
             }
 
-            // --- DATA YANG DIKIRIM KE EXCEL (DITAMBAH LEBIH LENGKAP) ---
+            // --- DATA YANG DIKIRIM KE EXCEL ---
             return (object) [
                 // 1. Identitas Utama
                 'nama' => $p->nama,
                 'nip'  => $p->nip,
-                'nik'  => $p->nik, // Baru: NIK KTP
-                'unit_kerja' => $p->unit_kerja, // Baru: Unit Kerja
+                'nik'  => $p->nik, 
+                'unit_kerja' => $p->unit_kerja,
                 'jabatan' => $p->jabatan,
                 'jenis' => $p->jenis_pegawai,
                 'golongan' => $p->golongan,
                 
-                // 2. Biodata (Baru)
+                // 2. Biodata 
                 'jenis_kelamin' => $p->jenis_kelamin,
                 'tempat_lahir'  => $p->tempat_lahir,
                 'tanggal_lahir' => $p->tanggal_lahir ? Carbon::parse($p->tanggal_lahir) : null,
