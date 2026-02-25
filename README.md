@@ -52,7 +52,7 @@ Pastikan sistem/komputer Anda telah terinstall:
 ### 1️⃣ Clone Repositori
 
 ```bash
-git clone https://github.com/username-kamu/si-kepegawaian.git
+git clone https://github.com/RyianDzuhri/si-kepegawaian
 cd si-kepegawaian
 ```
 
