@@ -10,8 +10,8 @@
     $batasPensiun = 58; 
     
     // 2. Cek Jenis Pegawai untuk pengecualian
-    // Honorer dan PPPK Paruh Waktu dianggap tidak memiliki BUP standar (Sesuai Kontrak)
-    $isNonPensionable = in_array($pegawai->jenis_pegawai, ['Honorer', 'PPPK Paruh Waktu']);
+    // Honorer dianggap tidak memiliki BUP standar (Sesuai Kontrak)
+    $isNonPensionable = in_array($pegawai->jenis_pegawai, ['Honorer']);
     
     // 3. Cek Kelengkapan Data untuk Golongan/Jadwal
     // PPPK Paruh Waktu & Honorer tidak punya Golongan & Jadwal Kenaikan
@@ -58,7 +58,7 @@
             <div>
                 <h5 class="alert-heading fw-bold mb-1">MASA PERSIAPAN PENSIUN (MPP)</h5>
                 <p class="mb-0">
-                    Pegawai ini akan pensiun dalam <strong>{{ \Carbon\Carbon::now()->diffForHumans($tglPensiun, ['parts' => 2]) }}</strong> 
+                    Pegawai ini akan pensiun dalam <strong>{{ \Carbon\Carbon::now()->diffForHumans($tglPensiun, ['parts' => 2, 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]) }} lagi</strong> 
                     (Tanggal: {{ $tglPensiun->translatedFormat('d F Y') }}).
                 </p>
             </div>

@@ -19,7 +19,7 @@ class DashboardController extends Controller
         // =================================================================
         // 2. LOGIKA PENSIUN (AKURAT <= 1 TAHUN)
         // =================================================================
-        $kandidatPensiun = Pegawai::whereIn('jenis_pegawai', ['PNS', 'PPPK'])
+        $kandidatPensiun = Pegawai::whereIn('jenis_pegawai', ['PNS', 'PPPK', 'PPPK Paruh Waktu'])
             ->whereNotNull('tanggal_lahir')
             ->get()
             ->filter(function ($p) {

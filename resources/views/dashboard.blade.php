@@ -63,7 +63,7 @@
             <div class="card-body p-3 p-md-4">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="bg-danger bg-opacity-10 p-2 rounded text-danger"><i class="fas fa-user-clock"></i></div>
-                    <span class="badge bg-light text-muted border">Tahun Ini</span>
+                    <span class="badge bg-light text-muted border">1 Tahun Ke Depan</span>
                 </div>
                 <h4 class="fw-bold text-dark mb-0">{{ $pensiunTahunIni }}</h4>
                 <p class="text-muted small fw-semibold mb-0">Memasuki Masa Pensiun</p>

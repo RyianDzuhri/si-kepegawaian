@@ -33,7 +33,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(248, 249, 250, 0.90); /* Warna putih/abu terang dengan transparansi 90% */
+        background-color: rgba(248, 249, 250, 0.674); /* Warna putih/abu terang dengan transparansi 90% */
         z-index: -1; /* Pastikan overlay berada di belakang konten utama, tapi di depan gambar */
     }
 
