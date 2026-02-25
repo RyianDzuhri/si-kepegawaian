@@ -157,9 +157,8 @@ class ManajemenPegawaiController extends Controller
         return redirect()->route('manajemen-pegawai')->with('success', 'Data pegawai berhasil dihapus');
     }
 
-    // --- FITUR EXPORT EXCEL
-    // --- FITUR EXPORT EXCEL (DIPERBARUI) ---
-    // --- FITUR EXPORT EXCEL (SINKRONISASI LOGIKA DASHBOARD H-60) ---
+
+    // --- FITUR EXPORT EXCEL  ---
     public function exportExcel()
     {
         // Ambil data, urutkan: Status (PNS duluan) -> Unit Kerja -> Nama
