@@ -12,19 +12,16 @@ header("Expires: 0");
         body, table, th, td { font-family: Arial, sans-serif; font-size: 10pt; }
         table { border-collapse: collapse; }
         
-        /* Tabel Utama */
         .table-data { width: 100%; }
         .table-data th, .table-data td { border: 1px solid #000000; padding: 5px; vertical-align: middle; }
         
         .text-center { text-align: center; }
         .text-left { text-align: left; }
 
-        /* WARNA HEADER TABEL UTAMA */
         .h-dark   { background-color: #404040; color: #FFFFFF; font-weight: bold; text-align: center; } 
         .h-blue   { background-color: #4472C4; color: #FFFFFF; font-weight: bold; text-align: center; } 
         .h-info   { background-color: #70AD47; color: #FFFFFF; font-weight: bold; text-align: center; } 
         
-        /* Teks Merah BOLD jika jatuh tempo */
         .due-date { font-weight: bold; color: #C00000; } 
     </style>
 </head>
@@ -33,13 +30,11 @@ header("Expires: 0");
     <h3 style="font-weight: bold; text-transform: uppercase;">DATA INDUK PEGAWAI & MONITORING KENAIKAN</h3>
     <p style="margin-bottom: 5px;">Tanggal Unduh: {{ date('d F Y, H:i') }}</p>
     
-    {{-- ========================================== --}}
-    {{-- LEGENDA WARNA (KETERANGAN) --}}
-    {{-- ========================================== --}}
+    {{-- LEGENDA WARNA --}}
     <table style="margin-bottom: 15px; border-collapse: collapse;">
         <tr>
             <td colspan="2" style="border: none; padding-bottom: 5px;">
-                <strong style="font-size: 11pt;">Keterangan Status (Warna Baris):</strong>
+                <strong style="font-size: 11pt;">Keterangan Status (Warna Baris/Kolom):</strong>
             </td>
         </tr>
         <tr>
@@ -60,33 +55,28 @@ header("Expires: 0");
         </tr>
     </table>
     <br>
-    {{-- ========================================== --}}
 
     {{-- TABEL DATA UTAMA --}}
     <table class="table-data">
         <thead>
             <tr style="height: 40px;">
-                {{-- 1. IDENTITAS UTAMA (Hitam/Abu Tua) --}}
                 <th width="40" class="h-dark">No</th>
                 <th width="250" class="h-dark">Nama Lengkap</th>
                 <th width="180" class="h-dark">NIP</th>
                 <th width="160" class="h-dark">NIK (KTP)</th>
                 <th width="200" class="h-dark">Unit Kerja</th>
                 
-                {{-- 2. BIODATA (Hijau) --}}
                 <th width="40"  class="h-info">L/P</th>
                 <th width="150" class="h-info">Tempat Lahir</th>
                 <th width="100" class="h-info">Tgl Lahir</th>
                 <th width="100" class="h-info">Pendidikan</th>
                 <th width="130" class="h-info">No. HP</th>
 
-                {{-- 3. DATA JABATAN (Biru) --}}
                 <th width="100" class="h-blue">Status</th>
                 <th width="60"  class="h-blue">Gol.</th>
                 <th width="250" class="h-blue">Jabatan</th>
                 <th width="100" class="h-blue">TMT Awal</th>
 
-                {{-- 4. MONITORING (Header Biru juga biar seragam) --}}
                 <th width="110" class="h-blue">TMT Pangkat</th>
                 <th width="110" class="h-blue">Est Pangkat</th>
 
@@ -100,37 +90,36 @@ header("Expires: 0");
             @foreach($data as $index => $row)
             
             @php
-                // LOGIKA MEWARNAI SELURUH BARIS
-                // Prioritas warna: Pensiun (Merah) -> Pangkat (Biru) -> Gaji (Kuning)
-                $rowBgColor = 'background-color: #FFFFFF;'; // Default Putih
-                
+                // 1. WARNA PRIORITAS UNTUK KESELURUHAN BARIS (NAMA DLL)
+                $rowBgColor = 'background-color: #FFFFFF;'; // Putih Default
                 if ($row->status_pensiun) {
-                    $rowBgColor = 'background-color: #FCE4D6;'; // Merah Muda
+                    $rowBgColor = 'background-color: #FCE4D6;'; // Pensiun (Merah Muda) - Prioritas 1
                 } elseif ($row->status_pangkat) {
-                    $rowBgColor = 'background-color: #DEEBF7;'; // Biru Muda
+                    $rowBgColor = 'background-color: #DEEBF7;'; // Pangkat (Biru Muda) - Prioritas 2
                 } elseif ($row->status_gaji) {
-                    $rowBgColor = 'background-color: #FFF2CC;'; // Kuning Muda
+                    $rowBgColor = 'background-color: #FFF2CC;'; // Gaji (Kuning) - Prioritas 3
                 }
+
+                // 2. WARNA SPESIFIK SEL (Untuk menimpa baris jika ada jadwal yang bentrok / bersamaan)
+                $bgPangkatCell = $row->status_pangkat ? 'background-color: #DEEBF7;' : '';
+                $bgGajiCell    = $row->status_gaji ? 'background-color: #FFF2CC;' : '';
+                $bgPensiunCell = $row->status_pensiun ? 'background-color: #FCE4D6;' : '';
             @endphp
 
-            {{-- Terapkan warna ke <tr> agar 1 baris full berwarna --}}
+            {{-- TERAPKAN WARNA BARIS (TR) --}}
             <tr style="{{ $rowBgColor }}">
-                
-                {{-- 1. IDENTITAS --}}
                 <td class="text-center">{{ $index + 1 }}</td>
                 <td><strong style="text-transform: uppercase;">{{ $row->nama }}</strong></td>
                 <td style="mso-number-format:'\@';">{{ $row->nip ?? '-' }}</td>
                 <td style="mso-number-format:'\@';">{{ $row->nik ?? '-' }}</td>
                 <td>{{ $row->unit_kerja }}</td>
 
-                {{-- 2. BIODATA --}}
                 <td class="text-center">{{ $row->jenis_kelamin }}</td>
                 <td>{{ $row->tempat_lahir }}</td>
                 <td class="text-center">{{ $row->tanggal_lahir ? $row->tanggal_lahir->format('d/m/Y') : '-' }}</td>
                 <td class="text-center">{{ $row->pendidikan }}</td>
                 <td style="mso-number-format:'\@';">{{ $row->no_hp }}</td>
 
-                {{-- 3. JABATAN --}}
                 <td class="text-center">{{ $row->jenis }}</td>
                 <td class="text-center">{{ $row->golongan ?? '-' }}</td>
                 <td>{{ $row->jabatan }}</td>
@@ -138,22 +127,22 @@ header("Expires: 0");
                     {{ $row->tmt_pengangkatan ? $row->tmt_pengangkatan->format('d/m/Y') : '-' }}
                 </td>
 
-                {{-- 4. MONITORING (Teks menjadi Bold Merah jika sedang warning) --}}
+                {{-- TERAPKAN WARNA SPESIFIK SEL (TD) UNTUK BAGIAN ESTIMASI --}}
                 
-                {{-- PANGKAT --}}
-                <td class="text-center">{{ $row->tmt_pangkat_terakhir ? $row->tmt_pangkat_terakhir->format('d/m/Y') : '-' }}</td>
-                <td class="text-center {{ $row->status_pangkat ? 'due-date' : '' }}">
+                {{-- BLOK KOLOM PANGKAT --}}
+                <td class="text-center" style="{{ $bgPangkatCell }}">{{ $row->tmt_pangkat_terakhir ? $row->tmt_pangkat_terakhir->format('d/m/Y') : '-' }}</td>
+                <td class="text-center {{ $row->status_pangkat ? 'due-date' : '' }}" style="{{ $bgPangkatCell }}">
                     {{ $row->tgl_naik_pangkat ? $row->tgl_naik_pangkat->format('d/m/Y') : '-' }}
                 </td>
 
-                {{-- GAJI --}}
-                <td class="text-center">{{ $row->tmt_gaji_terakhir ? $row->tmt_gaji_terakhir->format('d/m/Y') : '-' }}</td>
-                <td class="text-center {{ $row->status_gaji ? 'due-date' : '' }}">
+                {{-- BLOK KOLOM GAJI --}}
+                <td class="text-center" style="{{ $bgGajiCell }}">{{ $row->tmt_gaji_terakhir ? $row->tmt_gaji_terakhir->format('d/m/Y') : '-' }}</td>
+                <td class="text-center {{ $row->status_gaji ? 'due-date' : '' }}" style="{{ $bgGajiCell }}">
                     {{ $row->tgl_naik_gaji ? $row->tgl_naik_gaji->format('d/m/Y') : '-' }}
                 </td>
 
-                {{-- PENSIUN --}}
-                <td class="text-center {{ $row->status_pensiun ? 'due-date' : '' }}">
+                {{-- BLOK KOLOM PENSIUN --}}
+                <td class="text-center {{ $row->status_pensiun ? 'due-date' : '' }}" style="{{ $bgPensiunCell }}">
                     {{ $row->tgl_pensiun ? $row->tgl_pensiun->format('d/m/Y') : '-' }}
                 </td>
             </tr>
